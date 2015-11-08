@@ -1,6 +1,6 @@
 
 #Original Author : Sachin Kukreja (skad5455[at]gmail[dot]com)
-
+''''
 chess_board = {
 	"white" : {
 		"king" : [1,4],
@@ -40,8 +40,9 @@ chess_board = {
 		"pawn_8": [7,8]
 	}
 }
-
-
+'''
+import json
+chess_board = json.load(open("initial_state.json"))
 
 
 def legal_king_moves(board,color):
@@ -179,7 +180,7 @@ def legal_queen_moves(board, color):
 	return [x for x in queen_moves if x not in board[color].values()]
 
 
-#print legal_knight_moves(chess_board,"black","knight_2")
+print legal_knight_moves(chess_board,"black","knight_2")
 #print legal_queen_moves(chess_board,"black")
 #print legal_rook_moves(chess_board,"white","rook_1");
 
