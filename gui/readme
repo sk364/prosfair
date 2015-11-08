@@ -7,3 +7,4 @@ apt-get install python-pygame
 To run the simple gui for testing pygame, simply run:
 
 python gui_basic.py
+
