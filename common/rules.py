@@ -3,6 +3,8 @@
 import json
 #chess_board = json.load(open("../common/initial_state.json"))
 
+opposite_army = { "white" : "black" , "black" : "white" }
+
 
 def legal_king_moves(board,color,king='king'):
 	x , y = board[color][king] 
@@ -51,20 +53,28 @@ def legal_bishop_moves(board,color,bishop):
         bishop_moves = []
  
 	for i in xrange(8):
-		if x-i-1 > 0 and y+i+1 < 9 :
+		if x-i-1>0 and y+i+1<9:
+			if [x-i-1,y+i+1] in board[color].values(): break
 			bishop_moves = bishop_moves + [[x-i-1,y+i+1]]
+			if [x-i-1,y+i+1] in board[opposite_army[color]].values(): break
 
 	for i in xrange(8):
 		if x-i-1 > 0 and y-i-1 > 0:
+			if [x-i-1,y-i+1] in board[color].values(): break
 			bishop_moves = bishop_moves + [[x-i-1,y-i-1]]
+			if [x-i-1,y+i+1] in board[opposite_army[color]].values(): break
 
 	for i in xrange(8):
 		if x+i+1 < 9 and y-i-1 > 0:
+			if [x+i+1,y-i-1] in board[color].values(): break
 			bishop_moves = bishop_moves + [[x+i+1,y-i-1]]
+			if [x+i+1,y-i-1] in board[opposite_army[color]].values(): break
 
 	for i in xrange(8):
         	if x+i+1 < 9 and y+i+1 < 9:
-                       bishop_moves = bishop_moves + [[x+i+1,y+i+1]]
+			if [x+i+1,y+i+1] in board[color].values(): break
+                        bishop_moves = bishop_moves + [[x+i+1,y+i+1]]
+			if [x+i+1,y+i+1] in board[opposite_army[color]].values(): break
 
 	return [x for x in bishop_moves if x not in board[color].values()]
 
@@ -105,6 +115,9 @@ def legal_knight_moves(board, color, knight):
 
 	return [x for x in knight_moves if x not in board[color].values()]
 
+
+
+
 def legal_rook_moves(board,color,rook):
 
 	x , y = board[color][rook]
@@ -113,19 +126,27 @@ def legal_rook_moves(board,color,rook):
 
 	for i in xrange(8):
                 if x+i+1 < 9:
+			if [x+i+1,y] in board[color].values(): break
                         rook_moves = rook_moves + [[x+i+1,y]]
+			if [x+i+1,y] in board[opposite_army[color]].values(): break
 
         for i in xrange(8):
                 if x-i-1 > 0:
+			if [x-i-1,y] in board[color].values(): break
                         rook_moves = rook_moves + [[x-i-1,y]]
+			if [x-i-1,y] in board[opposite_army[color]].values(): break
 
         for i in xrange(8):
                 if y+i+1 < 9:
+			if [x,y+i+1] in board[color].values(): break
                         rook_moves = rook_moves + [[x,y+i+1]]
+			if [x,y+i+1] in board[opposite_army[color]].values(): break
 
         for i in xrange(8):
                 if y-i-1 > 0:
+			if [x,y-i-1] in board[color].values(): break
                         rook_moves = rook_moves + [[x,y-i-1]]
+			if [x,y-i-1] in board[opposite_army[color]].values(): break
 	
 	return [x for x in rook_moves if x not in board[color].values()]
 
@@ -147,12 +168,3 @@ def legal_queen_moves(board, color,queen="queen"):
 #Valid moves are yet to be debugged - - - Piece striking another piece just skipped that block and couldn't skip the other blocks in that horizontal/vertical/diagonal line.
 
 
-				
-'''
-
-		def eval(board):
-			sum = validMoves(board)
-
-			return sum
-
-'''
