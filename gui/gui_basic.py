@@ -1,5 +1,5 @@
 import pygame, sys
-from pygame.locals import *
+from   pygame.locals import *
 import re	
 import json
 import imp
@@ -9,6 +9,8 @@ chessboard = json.load(open("../common/initial_state.json"))
 image_dir = "../res/basic_chess_pieces/"
 rules = imp.load_source('chess_basic_rules','../common/rules.py')
 
+
+opposite_army = { "white" : "black" , "black" : "white" } 
 
 
 def get_chess_square(x,y,size):
@@ -32,8 +34,6 @@ def draw_chessboard( chess_board, size):
 	GRAY = (150, 150, 150)
 	WHITE = (255, 255, 255)
 
-	myfont = pygame.font.SysFont("monospace" , 20)
-	 
 	screen.fill(WHITE)
 	 
 	startX = 0
@@ -46,15 +46,13 @@ def draw_chessboard( chess_board, size):
 			startX = SIZE/8
 		for e2 in range(0, 8):
 			pygame.draw.rect(screen, GRAY, ((startX, startY), (SIZE/8, SIZE/8)))
-			#screen.blit(label,(startX,startY))
-			#screen.blit(label,(startX+100,startY))
 			startX += 2* SIZE/8
 		startY += SIZE/8 
 
 	for army in chessboard.keys():
 		for k in chess_board[army].keys():
 			img = pygame.image.load(image_dir + army + "_" + re.findall('[a-z]+',k)[0]+'.png')
-			screen.blit(img,( chess_board[army][k][1]*SIZE/8 - SIZE/8, chess_board[army][k][0] * SIZE/8 - SIZE/8 )) 		
+			screen.blit(img,( chess_board[army][k][1]*SIZE/8 - SIZE/8+SIZE/80, chess_board[army][k][0] * SIZE/8 - SIZE/8+SIZE/80 )) 		
 
 	pygame.display.update()
 	 
@@ -108,6 +106,10 @@ def looping(chess_board,size):
 							if valid:
 								chess_board[x][k][1] = new_x
 								chess_board[x][k][0] = new_y
+								for k,v in chess_board[opposite_army[x]].iteritems():
+									if v[0] == new_y and v[1] == new_x:
+										chess_board[opposite_army[x]][k]=[9,9]
+									
 				 draw_chessboard(chess_board,size)
 				 
 			 

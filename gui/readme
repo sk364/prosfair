@@ -9,5 +9,8 @@ To run the simple gui for testing pygame, simply run:
 python gui_basic.py
 
 
+This is just to demonstrate how traditional chess can be easily implemented in python using pygame. And our goal of creating prosfair is very easy.
+
+
 
 
