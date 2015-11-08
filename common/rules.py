@@ -60,9 +60,9 @@ def legal_bishop_moves(board,color,bishop):
 
 	for i in xrange(8):
 		if x-i-1 > 0 and y-i-1 > 0:
-			if [x-i-1,y-i+1] in board[color].values(): break
+			if [x-i-1,y-i-1] in board[color].values(): break
 			bishop_moves = bishop_moves + [[x-i-1,y-i-1]]
-			if [x-i-1,y+i+1] in board[opposite_army[color]].values(): break
+			if [x-i-1,y+i-1] in board[opposite_army[color]].values(): break
 
 	for i in xrange(8):
 		if x+i+1 < 9 and y-i-1 > 0:
