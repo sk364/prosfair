@@ -22,8 +22,15 @@ def generate_board(board,move):
 #print generate_board( chessboard,  { 'color':'white' , 'piece' : 'king' , 'new_position' : [4,4] })
 #
 
-
+#Debugged checkmate
 def in_checkmate(board,color):
+	
+	if in_check(board,color) == True and not rules.legal_king_moves(board,color,"king"):
+		return True
+		
+
+	if not rules.legal_king_moves(board,color,"king"):		#if moves of the king are null, then it is surrounded by its own pieces and is safe.
+		return False
 
 	for x in rules.legal_king_moves(board,color,"king"):
 		 if in_check(generate_board(board,{"color":color,"new_pos":x,"piece":"king"}),color) == False:
@@ -87,7 +94,7 @@ def evaluate_goodness(board,color,depth):
 		
 
 		for move in moves:
-			moves_list = move_list + [ [ color,x,move, -evaluate_goodness( generate_board(board,{ 'color':color, 'piece':x, 'new_position':move}),opposite_army[color],depth-1)]]
+			moves_list = moves_list + [ [ color,x,move, -evaluate_goodness( generate_board(board,{ 'color':color, 'piece':x, 'new_position':move}),opposite_army[color],depth-1)]]
 	
 	
 	return moves_list
