@@ -1,7 +1,8 @@
 
 #Original Author : Sachin Kukreja (skad5455[at]gmail[dot]com)
 import json
-#chess_board = json.load(open("../common/initial_state.json"))
+
+chess_board = json.load(open("../common/initial_state.json"))
 
 opposite_army = { "white" : "black" , "black" : "white" }
 
@@ -18,34 +19,44 @@ def legal_king_moves(board,color,king='king'):
 
 	return [ x for x in king_moves if x not in board[color].values() ]
 
-
+# Debugged
 def legal_pawn_moves(board,color,pawn):
-	if color == "white" :	
-
-		x , y = board[color][pawn]
-
-		pawn_moves = []
-	
-		if x < 8:
-			for j in xrange(3):
-				if  9 > y+j-1 > 0:
-                        		pawn_moves  = pawn_moves +  [[x+1,y+j-1]]
-
-		return pawn_moves
-
+	x , y = board[color][pawn]
+        pawn_moves = []
+	if color == "white" :
+		if x==2:
+			if 9 > y > 0:
+				if [x+2,y] not in board[opposite_army[color]].values():
+					pawn_moves = pawn_moves + [[x+2,y]]
+		if x<8:
+			if 9 > y > 0:
+				if [x+1,y] not in board[opposite_army[color]].values():
+					pawn_moves = pawn_moves+ [[x+1,y]]
+			if y>1:
+				if [x+1, y-1] in board[opposite_army[color]].values():
+                                        pawn_moves = pawn_moves+ [[x+1,y-1]]
+			if y<8:
+				if [x+1, y+1] in board[opposite_army[color]].values():
+                                        pawn_moves = pawn_moves+ [[x+1,y+1]]
+			
 	else:
-		x , y = board[color][pawn]
+		if x==7:
+                 	if 9 > y > 0:
+            	                if [x-2,y] not in board[opposite_army[color]].values():
+      	                                pawn_moves = pawn_moves + [[x-2,y]]
+                if x>1:
+          	      	if 9 > y > 0:
+                                if [x-1,y] not in board[opposite_army[color]].values():
+                             		pawn_moves = pawn_moves+ [[x-1,y]]
+                     	if y>1:
+                      	  	if [x-1, y-1] in board[opposite_army[color]].values():
+                              		pawn_moves = pawn_moves+ [[x-1,y-1]]
+                      	if y<8:
+                               	if [x-1, y+1] in board[opposite_army[color]].values():
+                                	pawn_moves = pawn_moves+ [[x-1,y+1]]
 
-                pawn_moves = []
 
-		if x > 1:
-                	for j in xrange(3):
-                        	if  9 > y+j-1 > 0:
-                                	pawn_moves  = pawn_moves +  [[x-1,y+j-1]]
-
-                return [x for x in pawn_moves if x not in board[color].values()]
-
-	
+	return[x for x in pawn_moves if x not in board[color].values()]
 def legal_bishop_moves(board,color,bishop):
 
 	x , y = board[color][bishop]
