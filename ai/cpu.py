@@ -60,7 +60,9 @@ def game_over(board,color):
 def evaluate_board(board,color):
 	if in_checkmate(board,color) or in_check(board,color):	return -1.0
 	if in_checkmate(board,opposite_army[color]) or in_check(board,opposite_army[color]): return 1.0
-	
+ 	##TODO: here only two extremes cases has only been handled
+	##      need to write the middle cases, which will include
+	## 	the current position of the player's pieces. 
 	return 0.0 
 
 
