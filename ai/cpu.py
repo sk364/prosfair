@@ -8,6 +8,7 @@ piece_value = json.load(open("../common/chess_piece_priority.json"))
 opposite = { "white" : "black" , "black" : "white" }
 
 def generate_board(board,move):
+	print "Evaluating move ",move
 	new_board = copy.deepcopy(board)
 	killed_piece = None
 	for k,v in new_board[opposite[move['color']]].iteritems(): 

@@ -145,7 +145,7 @@ def looping_cpu_vs_human(board,size):
 													
 														
 								draw_chessboard(board,size)
-								move = cpu.minimax(board,opposite[x],1)
+								move = cpu.minimax(board,opposite[x],1) ##depth is 1 
 								board = cpu.generate_board(board,move)
 								draw_chessboard(board,size)
 							 
@@ -158,7 +158,7 @@ def looping_cpu_vs_cpu(board,size):
 	color = "white"
 	print board
 	while True:
-		move = cpu.minimax(board,color,1)
+		move = cpu.minimax(board,color,1)#depth is 1
 		board = cpu.generate_board(board,move)
 		color = cpu.opposite[color]
 		draw_chessboard(board,size)
