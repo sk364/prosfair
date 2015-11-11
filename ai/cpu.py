@@ -69,8 +69,8 @@ def game_over(board,color):
 	return False
 
 def evaluate_board(board,color):
-	if in_checkmate(board,color) or in_check(board,color):	return -1.0
-	if in_checkmate(board,opposite[color]) or in_check(board,opposite[color]): return 1.0
+	if in_checkmate(board,color) or in_check(board,color):	return float('-inf')
+	if in_checkmate(board,opposite[color]) or in_check(board,opposite[color]): return float('inf')
  	##TODO: here only two extremes cases has only been handled
 	##      need to write the middle cases, which will include
 	## 	the current position of the player's pieces.
