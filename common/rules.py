@@ -8,6 +8,7 @@ opposite_army = { "white" : "black" , "black" : "white" }
 
 
 def legal_king_moves(board,color,king='king'):
+	if king not in board[color].keys(): return []
 	x , y = board[color][king] 
 
 	king_moves = []
@@ -21,6 +22,7 @@ def legal_king_moves(board,color,king='king'):
 
 # Debugged
 def legal_pawn_moves(board,color,pawn):
+	if pawn not in board[color].keys(): return []
 	x , y = board[color][pawn]
         pawn_moves = []
 	if color == "white" :
@@ -58,7 +60,7 @@ def legal_pawn_moves(board,color,pawn):
 
 	return[x for x in pawn_moves if x not in board[color].values()]
 def legal_bishop_moves(board,color,bishop):
-
+	if bishop not in board[color].keys(): return []
 	x , y = board[color][bishop]
 
         bishop_moves = []
@@ -95,7 +97,7 @@ def legal_bishop_moves(board,color,bishop):
 #print legal_bishop_moves(chess_board,"black","bishop_1")
 
 def legal_knight_moves(board, color, knight):
-	
+	if knight not in board[color].keys(): return []
 	x , y = board[color][knight]
 
 	knight_moves = []
@@ -130,7 +132,7 @@ def legal_knight_moves(board, color, knight):
 
 
 def legal_rook_moves(board,color,rook):
-
+	if rook not in board[color].keys() : return []
 	x , y = board[color][rook]
 
 	rook_moves = []
@@ -163,7 +165,7 @@ def legal_rook_moves(board,color,rook):
 
 
 def legal_queen_moves(board, color,queen="queen"):
-	
+	if queen not in board[color].keys(): []
 	x , y = board[color][queen]
 
 	queen_moves = legal_rook_moves(board,color,queen) + legal_bishop_moves(board,color,queen)

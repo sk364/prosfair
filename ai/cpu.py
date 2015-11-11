@@ -1,15 +1,25 @@
 import imp
 import json
-
-chessboard = json.load(open("../common/initial_state.json"))
+import copy
+#chessboard = json.load(open("../common/initial_state.json"))
 rules = imp.load_source('chess_basic_rules','../common/rules.py')
+piece_value = json.load(open("../common/chess_piece_priority.json"))
 
-
-opposite_army = { "white" : "black" , "black" : "white" }
+opposite = { "white" : "black" , "black" : "white" }
 
 def generate_board(board,move):
-	board[move['color']][move['piece']] = move['new_position']
-	return board
+	new_board = copy.deepcopy(board)
+	killed_piece = None
+	for k,v in new_board[opposite[move['color']]].iteritems(): 
+		if move['new_position'] == v :
+			killed_piece = k
+
+	if killed_piece and killed_piece in new_board[opposite[move['color']]].keys() : del new_board[opposite[move['color']]][killed_piece]
+
+	#if killed_piece :	print killed_piece
+
+	new_board[move['color']][move['piece']] = move['new_position']
+	return new_board
 
 
 #Debugged checkmate
@@ -31,7 +41,7 @@ def in_checkmate(board,color):
 
 
 def in_check(board,color):
-	oc = opposite_army[color]
+	oc = opposite[color]
 	moves = []
 	for x in board[oc].keys():
 		if   "king"   in x:
@@ -46,24 +56,28 @@ def in_check(board,color):
 			moves = moves +  rules.legal_rook_moves(board,oc,x)
 		elif "pawn"   in x:
 			moves = moves +  rules.legal_pawn_moves(board,oc,x)
-
-	if board[color]['king'] in moves:
-		return True
+	if 'king' in board[color].keys():
+		if board[color]['king'] in moves:
+			return True
 
 	return False
 		
 
 def game_over(board,color):
-	if in_checkmate(board,color) or in_checkmate(board,opposite_army[color]) :	return True
+	if in_checkmate(board,color) or in_checkmate(board,opposite[color]) :	return True
 	return False
 
 def evaluate_board(board,color):
 	if in_checkmate(board,color) or in_check(board,color):	return -1.0
-	if in_checkmate(board,opposite_army[color]) or in_check(board,opposite_army[color]): return 1.0
+	if in_checkmate(board,opposite[color]) or in_check(board,opposite[color]): return 1.0
  	##TODO: here only two extremes cases has only been handled
 	##      need to write the middle cases, which will include
-	## 	the current position of the player's pieces. 
-	return 0.0 
+	## 	the current position of the player's pieces.
+
+	return sum([ float(piece_value[x]) for x in board[color].keys() ]) - sum( [ float(piece_value[x]) for x in board[opposite[color]].keys() ])
+
+ 
+	
 
 
 
@@ -92,19 +106,18 @@ def get_moves(board,color):
 
 def minimax(board,color,depth):
 
-
 	if depth == 0 : return evaluate_board(board,color)
 	
 	moves_list = get_moves(board,color)
 
-	assert len(moves_list) > 0
+	if len(moves_list) == 0: return None
 
 	best_move = moves_list[0]
 	best_score = float('-inf')
 
 	for move in moves_list:
 		clone_board = generate_board(board,move)
-		score = min_play(clone_board,opposite_army[color],depth)
+		score = min_play(clone_board,opposite[color],depth)
 		if score > best_score:
 			best_move= move
 			best_score = score
@@ -121,8 +134,8 @@ def min_play(board,color,depth):
 	
 	for move in moves_list:
 		clone_board = generate_board(board,move)
-		score  =max_play(clone_board,opposite_army[color],depth-1)
-		print "evaluating move : ", move, score
+		score  =max_play(clone_board,opposite[color],depth-1)
+		#rint "evaluating move : ", move, score
 		if score < best_score:
 			best_move = move
 			best_score = score
@@ -142,7 +155,7 @@ def max_play(board,color,depth):
 	for move in moves_list:
 		clone_board = generate_board(board,move)
 		score = min_play(clone_board,color,depth-1)
-		print "evaluating move : ", move,score
+		#rint "evaluating move : ", move,score
 
 		if score > best_score:
 			best_move = move
@@ -153,4 +166,4 @@ def max_play(board,color,depth):
 
 
 
-print minimax(chessboard,"white",1)
+#print minimax(chessboard,"white",3)
