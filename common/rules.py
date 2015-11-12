@@ -20,7 +20,7 @@ def legal_king_moves(board,color,king='king'):
 
 	return [ x for x in king_moves if x not in board[color].values() ]
 
-# Debugged
+
 def legal_pawn_moves(board,color,pawn):
 	if pawn not in board[color].keys(): return []
 	x , y = board[color][pawn]
@@ -59,6 +59,9 @@ def legal_pawn_moves(board,color,pawn):
 
 
 	return[x for x in pawn_moves if x not in board[color].values()]
+
+
+
 def legal_bishop_moves(board,color,bishop):
 	if bishop not in board[color].keys(): return []
 	x , y = board[color][bishop]
@@ -91,10 +94,6 @@ def legal_bishop_moves(board,color,bishop):
 
 	return [x for x in bishop_moves if x not in board[color].values()]
 
-
-#print legal_king_moves(chess_board,"white")
-#print legal_pawn_moves(chess_board,"black","pawn_2")
-#print legal_bishop_moves(chess_board,"black","bishop_1")
 
 def legal_knight_moves(board, color, knight):
 	if knight not in board[color].keys(): return []
@@ -172,12 +171,5 @@ def legal_queen_moves(board, color,queen="queen"):
 
 	return [x for x in queen_moves if x not in board[color].values()]
 
-
-#print legal_knight_moves(chess_board,"black","knight_2")
-#print legal_queen_moves(chess_board,"black")
-#print legal_rook_moves(chess_board,"white","rook_1");
-
-
-#Valid moves are yet to be debugged - - - Piece striking another piece just skipped that block and couldn't skip the other blocks in that horizontal/vertical/diagonal line.
 
 

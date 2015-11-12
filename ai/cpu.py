@@ -1,7 +1,8 @@
 import imp
 import json
 import copy
-#chessboard = json.load(open("../common/initial_state.json"))
+
+
 rules = imp.load_source('chess_basic_rules','../common/rules.py')
 piece_value = json.load(open("../common/chess_piece_priority.json"))
 
@@ -23,7 +24,6 @@ def generate_board(board,move):
 	return new_board
 
 
-#Debugged checkmate
 def in_checkmate(board,color):
 	
 	if in_check(board,color) == True and not rules.legal_king_moves(board,color,"king"):
@@ -67,6 +67,17 @@ def in_check(board,color):
 def game_over(board,color):
 	if in_checkmate(board,color) or in_checkmate(board,opposite[color]) :	return True
 	return False
+
+
+
+def shielding(board,color):
+	## Shielding is how many pieces it's protecting from getting attacked, 
+	## one way to calculate it is if it's occupying a position which
+		
+
+	
+
+
 
 def evaluate_board(board,color):
 	if in_checkmate(board,color) or in_check(board,color):	return float('-inf')
@@ -167,4 +178,3 @@ def max_play(board,color,depth):
 
 
 
-#print minimax(chessboard,"white",3)
