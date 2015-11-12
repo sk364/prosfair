@@ -1,12 +1,14 @@
 
 #Original Author : Sachin Kukreja (skad5455[at]gmail[dot]com)
 import json
-#chess_board = json.load(open("../common/initial_state.json"))
+
+chess_board = json.load(open("../common/initial_state.json"))
 
 opposite_army = { "white" : "black" , "black" : "white" }
 
 
 def legal_king_moves(board,color,king='king'):
+	if king not in board[color].keys(): return []
 	x , y = board[color][king] 
 
 	king_moves = []
@@ -20,34 +22,48 @@ def legal_king_moves(board,color,king='king'):
 
 
 def legal_pawn_moves(board,color,pawn):
-	if color == "white" :	
-
-		x , y = board[color][pawn]
-
-		pawn_moves = []
-	
-		if x < 8:
-			for j in xrange(3):
-				if  9 > y+j-1 > 0:
-                        		pawn_moves  = pawn_moves +  [[x+1,y+j-1]]
-
-		return pawn_moves
-
+	if pawn not in board[color].keys(): return []
+	x , y = board[color][pawn]
+        pawn_moves = []
+	if color == "white" :
+		if x==2:
+			if 9 > y > 0:
+				if [x+2,y] not in board[opposite_army[color]].values():
+					pawn_moves = pawn_moves + [[x+2,y]]
+		if x<8:
+			if 9 > y > 0:
+				if [x+1,y] not in board[opposite_army[color]].values():
+					pawn_moves = pawn_moves+ [[x+1,y]]
+			if y>1:
+				if [x+1, y-1] in board[opposite_army[color]].values():
+                                        pawn_moves = pawn_moves+ [[x+1,y-1]]
+			if y<8:
+				if [x+1, y+1] in board[opposite_army[color]].values():
+                                        pawn_moves = pawn_moves+ [[x+1,y+1]]
+			
 	else:
-		x , y = board[color][pawn]
+		if x==7:
+                 	if 9 > y > 0:
+            	                if [x-2,y] not in board[opposite_army[color]].values():
+      	                                pawn_moves = pawn_moves + [[x-2,y]]
+                if x>1:
+          	      	if 9 > y > 0:
+                                if [x-1,y] not in board[opposite_army[color]].values():
+                             		pawn_moves = pawn_moves+ [[x-1,y]]
+                     	if y>1:
+                      	  	if [x-1, y-1] in board[opposite_army[color]].values():
+                              		pawn_moves = pawn_moves+ [[x-1,y-1]]
+                      	if y<8:
+                               	if [x-1, y+1] in board[opposite_army[color]].values():
+                                	pawn_moves = pawn_moves+ [[x-1,y+1]]
 
-                pawn_moves = []
 
-		if x > 1:
-                	for j in xrange(3):
-                        	if  9 > y+j-1 > 0:
-                                	pawn_moves  = pawn_moves +  [[x-1,y+j-1]]
+	return[x for x in pawn_moves if x not in board[color].values()]
 
-                return [x for x in pawn_moves if x not in board[color].values()]
 
-	
+
 def legal_bishop_moves(board,color,bishop):
-
+	if bishop not in board[color].keys(): return []
 	x , y = board[color][bishop]
 
         bishop_moves = []
@@ -79,12 +95,8 @@ def legal_bishop_moves(board,color,bishop):
 	return [x for x in bishop_moves if x not in board[color].values()]
 
 
-#print legal_king_moves(chess_board,"white")
-#print legal_pawn_moves(chess_board,"black","pawn_2")
-#print legal_bishop_moves(chess_board,"black","bishop_1")
-
 def legal_knight_moves(board, color, knight):
-	
+	if knight not in board[color].keys(): return []
 	x , y = board[color][knight]
 
 	knight_moves = []
@@ -119,7 +131,7 @@ def legal_knight_moves(board, color, knight):
 
 
 def legal_rook_moves(board,color,rook):
-
+	if rook not in board[color].keys() : return []
 	x , y = board[color][rook]
 
 	rook_moves = []
@@ -152,19 +164,12 @@ def legal_rook_moves(board,color,rook):
 
 
 def legal_queen_moves(board, color,queen="queen"):
-	
+	if queen not in board[color].keys(): []
 	x , y = board[color][queen]
 
 	queen_moves = legal_rook_moves(board,color,queen) + legal_bishop_moves(board,color,queen)
 
 	return [x for x in queen_moves if x not in board[color].values()]
 
-
-#print legal_knight_moves(chess_board,"black","knight_2")
-#print legal_queen_moves(chess_board,"black")
-#print legal_rook_moves(chess_board,"white","rook_1");
-
-
-#Valid moves are yet to be debugged - - - Piece striking another piece just skipped that block and couldn't skip the other blocks in that horizontal/vertical/diagonal line.
 
 
