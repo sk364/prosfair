@@ -116,11 +116,9 @@ def looping_cpu_vs_human(board,size):
 				 for x in ['white','black']:
 					for k in board[x].keys():
 						if board[x][k][1] == old_x and board[x][k][0] == old_y:
-							#print k
 							if "bishop" in k:
 								if [new_y,new_x] in rules.legal_bishop_moves(board,x,k): valid = True
 							elif "pawn" in k:
-								#print "hey"
 								if [new_y,new_x] in rules.legal_pawn_moves(board,x,k):   valid = True
 							elif "knight" in k:
 								if [new_y,new_x] in rules.legal_knight_moves(board,x,k): valid = True
@@ -129,10 +127,11 @@ def looping_cpu_vs_human(board,size):
 							elif "queen" in k:
 								if [new_y,new_x] in rules.legal_queen_moves(board,x,k):  valid = True
 							elif "king" in k:
-								if [new_y,new_x] in rules.legal_king_moves( board,x,k): valid = True
+								if [new_y,new_x] in rules.legal_king_moves(board,x,k): valid = True
 
 
 							if valid and x == "white":
+								print board
 								board[x][k][1] = new_x
 								board[x][k][0] = new_y
 								killed_piece = None
@@ -148,6 +147,7 @@ def looping_cpu_vs_human(board,size):
 								move = cpu.minimax(board,opposite[x],1) ##depth is 1 
 								board = cpu.generate_board(board,move)
 								draw_chessboard(board,size)
+								break #Break here is necessary since we are deleting a key from the map on which we are iterating
 							 
 				 
 
