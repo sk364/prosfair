@@ -2,7 +2,7 @@
 #Original Author : Sachin Kukreja (skad5455[at]gmail[dot]com)
 import json
 
-chess_board = json.load(open("../common/initial_state.json"))
+#chess_board = json.load(open("../common/initial_state.json"))
 
 opposite_army = { "white" : "black" , "black" : "white" }
 
@@ -170,6 +170,7 @@ def legal_queen_moves(board, color,queen="queen"):
 	queen_moves = legal_rook_moves(board,color,queen) + legal_bishop_moves(board,color,queen)
 
 	return [x for x in queen_moves if x not in board[color].values()]
+
 
 
 
