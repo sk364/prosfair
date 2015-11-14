@@ -1,0 +1,18 @@
+{
+    "bishop_1": 3,
+    "bishop_2": 3,
+    "king": 10,
+    "knight_1": 3,
+    "knight_2": 3,
+    "pawn_1": 1,
+    "pawn_2": 1,
+    "pawn_3": 1,
+    "pawn_4": 1,
+    "pawn_5": 1,
+    "pawn_6": 1,
+    "pawn_7": 1,
+    "pawn_8": 1,
+    "queen": 9,
+    "rook_1": 5,
+    "rook_2": 5
+}
