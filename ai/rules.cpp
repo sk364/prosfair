@@ -142,7 +142,7 @@ llu moves_rook(llu b)
 }
 
 // dir == true /false for different type of pawn
-llu moves_pawn(llu b,bool dir)
+llu moves_pawn(llu b,bool dir,bool attack)
 {
 	int p = find_pos(b);
 	int x = p%8;
@@ -156,10 +156,10 @@ llu moves_pawn(llu b,bool dir)
 	{
 		if( y+1 >= 0 and y+1 <=7 ) 
 		{
-			res |= ( return_llu() | (return_one())<<(8*(y+1)+x));
-			if( x-1 >=0 and x-1 <=7 )
+			if( not attack ) res |= ( return_llu() | (return_one())<<(8*(y+1)+x));
+			if( x-1 >=0 and x-1 <=7 and attack )
 				res |= (return_llu() | (return_one())<<(8*(y+1)+x-1));
-			if( x+1 >=0 and x+1 <=7 )
+			if( x+1 >=0 and x+1 <=7 and attack )
 				res |= (return_llu() | (return_one())<<(8*(y+1)+x+1));
 		}
 
@@ -167,10 +167,10 @@ llu moves_pawn(llu b,bool dir)
 	else {
 		if( y-1 >=0 and y-1 <= 7 )
 		{
-			res |= (return_llu() | (return_one())<<(8*(y-1)+x));
-			if( x-1 >=0 and x-1 <=7 )
+			if ( not attack ) res |= (return_llu() | (return_one())<<(8*(y-1)+x));
+			if( x-1 >=0 and x-1 <=7 and attack )
 				res |= (return_llu() | (return_one())<<(8*(y-1)+x-1));
-			if( x+1 >=0 and x+1 <=7 )
+			if( x+1 >=0 and x+1 <=7 and attack)
 				res |= (return_llu() | (return_one())<<(8*(y-1)+x+1));
 		}
 	}
