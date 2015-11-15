@@ -9,7 +9,7 @@ chessboard = json.load(open("../common/initial_state.json"))
 image_dir = "../res/basic_chess_pieces/"
 rules = imp.load_source('chess_basic_rules','../common/rules.py')
 cpu = imp.load_source('chess_minimax_ai','../ai/cpu.py')
-
+helper = imp.load_source('helper_functions','../common/helper_functions.py')
 
 opposite = { "white" : "black" , "black" : "white" } 
 
@@ -145,7 +145,7 @@ def looping_cpu_vs_human(board,size):
 														
 								draw_chessboard(board,size)
 								move = cpu.minimax(board,opposite[x],1) ##depth is 1 
-								board = cpu.generate_board(board,move)
+								board = helper.generate_board(board,move)
 								draw_chessboard(board,size)
 								break #Break here is necessary since we are deleting a key from the map on which we are iterating
 							 
@@ -159,8 +159,8 @@ def looping_cpu_vs_cpu(board,size):
 	print board
 	while True:
 		move = cpu.minimax(board,color,1)#depth is 1
-		board = cpu.generate_board(board,move)
-		color = cpu.opposite[color]
+		board = helper.generate_board(board,move)
+		color = opposite[color]
 		draw_chessboard(board,size)
 	
 		
@@ -169,5 +169,5 @@ def looping_cpu_vs_cpu(board,size):
 
 
 ##main loop ... 
-looping_cpu_vs_human( chessboard,600)
-#ooping_cpu( chessboard,600)
+#looping_cpu_vs_human( chessboard,600)
+looping_cpu_vs_cpu( chessboard,600)
