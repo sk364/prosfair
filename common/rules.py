@@ -20,12 +20,12 @@ def legal_king_moves(board,color,king='king'):
 					king_moves  = king_moves +  [[x+i-1,y+j-1]]
 
 	if color == "white":
-		if [1,3] not in board[opposite_army[color]].values() and [1,3] not in board[color].values() and [1,2] not in board[opposite_army[color]].values() and board[color]["rook_1"][0] == 1 and board[color]["rook_1"] == 1:
+		if [1,3] not in board[opposite_army[color]].values() and [1,3] not in board[color].values() and [1,2] not in board[opposite_army[color]].values() and board[color]["rook_1"][0] == 1 and board[color]["rook_1"][1] == 1:
 			king_moves= king_moves + [[1,2]]
 			castle_condition = True
 
 	else:
-		if [8,3] not in board[opposite_army[color]].values() and [8,3] not in board[color].values() and [8,2] not in board[opposite_army[color]].values() and board[color]["rook_1"][0] == 8 and board[color]["rook_1"] == 1:
+		if [8,3] not in board[opposite_army[color]].values() and [8,3] not in board[color].values() and [8,2] not in board[opposite_army[color]].values() and board[color]["rook_1"][0] == 8 and board[color]["rook_1"][1] == 1:
                         king_moves= king_moves + [[8,2]]
 			castle_condition = True
 			

@@ -42,7 +42,7 @@ def evaluate_board(board,color):
 
 
 
-def minimax(board,color,depth):
+'''def minimax(board,color,depth):
 
 	if depth == 0 : return evaluate_board(board,color)
 	
@@ -100,7 +100,39 @@ def max_play(board,color,depth):
 			best_score = score
 	
 	return best_score
+'''
+
+def alphaBetaMin(alpha,beta, depth):
+	if depth == 0 or helper.game_over(board, color) :
+		return evaluate_board(board,color)
+
+	moves_list = helper.get_moves(board,color)
+
+	for move in moves_list:
+		score = alphaBetaMax(alpha,beta,depth-1)
+		if score <= beta:
+			return alpha
+		if score < alpha:
+			beta = score
+
+	return beta
+
+def alphaBetaMax(alpha,beta, depth):
+        if depth == 0 or helper.game_over(board, color) :
+                return evaluate_board(board,color)
+
+        moves_list = helper.get_moves(board,color)
+
+        for move in moves_list:
+               	score = alphaBetaMin(alpha,beta,depth-1)
+                if score >= beta:
+                        return beta
+                if score > alpha:
+                        alpha = score
+
+        return alpha
 
 
+score = alphaBetaMax(
 
 
