@@ -18,6 +18,15 @@ def legal_king_moves(board,color,king='king'):
 				if x+i-1 != x or y+j-1 != y:
 					king_moves  = king_moves +  [[x+i-1,y+j-1]]
 
+	if color == "white":
+		if [1,3] not in board[opposite_army[color]].values() and [1,3] not in board[color].values() and [1,2] not in board[opposite_army[color]].values():
+			king_moves= king_moves + [[1,2]]
+
+	else:
+		if [8,3] not in board[opposite_army[color]].values() and [8,3] not in board[color].values() and [8,2] not in board[opposite_army[color]].values():
+                        king_moves= king_moves + [[8,2]]
+			
+
 	return [ x for x in king_moves if x not in board[color].values() ]
 
 

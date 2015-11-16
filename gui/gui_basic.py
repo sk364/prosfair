@@ -158,11 +158,19 @@ def looping_cpu_vs_cpu(board,size):
 	color = "white"
 	print board
 	while True:
+		for event in pygame.event.get():
+                         if event.type == QUIT:
+                                 pygame.quit()
+                                 sys.exit()
+                                 pygame.display.update()
+
 		move = cpu.minimax(board,color,1)#depth is 1
 		board = helper.generate_board(board,move)
 		color = opposite[color]
 		draw_chessboard(board,size)
-	
+
+def looping_human_vs_human(board, size):
+	print "\n\nSorry! This mode is under construction. The game will be updated soon.\n\n"			
 		
 		
 			
@@ -170,4 +178,4 @@ def looping_cpu_vs_cpu(board,size):
 
 ##main loop ... 
 #looping_cpu_vs_human( chessboard,600)
-looping_cpu_vs_cpu( chessboard,600)
+#looping_cpu_vs_cpu( chessboard,600)
