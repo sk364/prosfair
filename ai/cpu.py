@@ -101,6 +101,3 @@ def max_play(board,color,depth):
 	
 	return best_score
 
-
-
-
