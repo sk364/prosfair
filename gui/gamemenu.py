@@ -78,6 +78,8 @@ class GameMenu():
 					for item in self.items:
 						if item.is_mouse_selection(mpos):
 							mainloop = False
+							if item.text == "Quit":
+								self.funcs[item.text]()
 							self.funcs[item.text](gui_basic.chessboard,600)
 
 	    	            # Redraw the background
@@ -92,7 +94,7 @@ class GameMenu():
                 		else:
                     			item.set_font_color((255, 255, 255))
                     			item.set_bold(False)
-                			self.screen.blit(item.label, item.position)
+               			self.screen.blit(item.label, item.position)
  
             		pygame.display.flip()
  

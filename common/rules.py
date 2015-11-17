@@ -6,8 +6,6 @@ import json
 
 opposite_army = { "white" : "black" , "black" : "white" }
 
-castle_condition = False
-
 def legal_king_moves(board,color,king='king'):
 	if king not in board[color].keys(): return []
 	x , y = board[color][king] 
@@ -17,18 +15,7 @@ def legal_king_moves(board,color,king='king'):
 		for j in xrange(3):
 			if  9 > x+i-1 > 0 and 9 > y+j-1 >0:
 				if x+i-1 != x or y+j-1 != y:
-					king_moves  = king_moves +  [[x+i-1,y+j-1]]
-
-	if color == "white":
-		if [1,3] not in board[opposite_army[color]].values() and [1,3] not in board[color].values() and [1,2] not in board[opposite_army[color]].values() and board[color]["rook_1"][0] == 1 and board[color]["rook_1"][1] == 1:
-			king_moves= king_moves + [[1,2]]
-			castle_condition = True
-
-	else:
-		if [8,3] not in board[opposite_army[color]].values() and [8,3] not in board[color].values() and [8,2] not in board[opposite_army[color]].values() and board[color]["rook_1"][0] == 8 and board[color]["rook_1"][1] == 1:
-                        king_moves= king_moves + [[8,2]]
-			castle_condition = True
-			
+					king_moves  = king_moves +  [[x+i-1,y+j-1]]	
 
 	return [ x for x in king_moves if x not in board[color].values() ]
 
@@ -147,12 +134,6 @@ def legal_rook_moves(board,color,rook):
 	x , y = board[color][rook]
 
 	rook_moves = []
-
-	if castle_condition == True and rook=="rook_1" and rook!="queen":
-		if color == "white":
-			return [1,3]
-		else:
-			return [8,3]
 
 	for i in xrange(8):
                 if x+i+1 < 9:
