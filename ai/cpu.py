@@ -41,7 +41,7 @@ def evaluate_board(board,color):
 
 
 
-
+'''
 def minimax(board,color,depth):
 
 	if depth == 0 : return evaluate_board(board,color)
@@ -100,4 +100,62 @@ def max_play(board,color,depth):
 			best_score = score
 	
 	return best_score
+'''
+
+def alphaBetaPruning(board,color,depth):
+	if depth == 0 : return evaluate_board(board,color)
+        
+        moves_list = helper.get_moves(board,color)
+
+        if len(moves_list) == 0: return None
+
+        best_move = moves_list[0]
+        best_score = float('-inf')
+
+	alpha = float('-inf')
+	beta = float('inf')
+
+        for move in moves_list:
+                clone_board = helper.generate_board(board,move)
+                score = alphaBetaMin(clone_board, opposite[color], alpha, beta, depth)
+                if score > best_score:
+                        best_move= move
+                        best_score = score
+        
+        return best_move
+
+
+def alphaBetaMin(board,color,alpha,beta, depth):
+        if depth == 0 or helper.game_over(board, color) :
+                return evaluate_board(board,color)
+
+        moves_list = helper.get_moves(board,color)
+
+        for move in moves_list:
+                clone_board = helper.generate_board(board,move)
+
+                score = alphaBetaMax(clone_board,opposite_army[color],alpha,beta,depth-1)
+                if score <= beta:
+                        return alpha
+                if score < alpha:
+                        beta = score
+
+        return beta
+
+def alphaBetaMax(board,color,alpha,beta, depth):
+        if depth == 0 or helper.game_over(board, color) :
+                return evaluate_board(board,color)
+
+        moves_list = helper.get_moves(board,color)
+
+        for move in moves_list:
+                clone_board = helper.generate_board(board,move)
+
+                score = alphaBetaMin(clone_board,opposite_army[color],alpha,beta,depth-1)
+                if score >= beta:
+                        return beta
+                if score > alpha:
+                        alpha = score
+
+        return alpha
 
