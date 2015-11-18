@@ -102,7 +102,7 @@ def max_play(board,color,depth):
 	return best_score
 '''
 
-def alphaBetaPruning(board,color,depth):
+def alpha_beta_pruning(board,color,depth):
 	if depth == 0 : return evaluate_board(board,color)
         
         moves_list = helper.get_moves(board,color)
@@ -117,7 +117,7 @@ def alphaBetaPruning(board,color,depth):
 
         for move in moves_list:
                 clone_board = helper.generate_board(board,move)
-                score = alphaBetaMin(clone_board, opposite[color], alpha, beta, depth)
+                score = alpha_beta_min(clone_board, opposite[color], alpha, beta, depth)
                 if score > best_score:
                         best_move= move
                         best_score = score
@@ -125,7 +125,7 @@ def alphaBetaPruning(board,color,depth):
         return best_move
 
 
-def alphaBetaMin(board,color,alpha,beta, depth):
+def alpha_beta_min(board,color,alpha,beta, depth):
         if depth == 0 or helper.game_over(board, color) :
                 return evaluate_board(board,color)
 
@@ -134,7 +134,7 @@ def alphaBetaMin(board,color,alpha,beta, depth):
         for move in moves_list:
                 clone_board = helper.generate_board(board,move)
 
-                score = alphaBetaMax(clone_board,opposite_army[color],alpha,beta,depth-1)
+                score = alpha_beta_max(clone_board,opposite[color],alpha,beta,depth-1)
                 if score <= beta:
                         return alpha
                 if score < alpha:
@@ -142,7 +142,7 @@ def alphaBetaMin(board,color,alpha,beta, depth):
 
         return beta
 
-def alphaBetaMax(board,color,alpha,beta, depth):
+def alpha_beta_max(board,color,alpha,beta, depth):
         if depth == 0 or helper.game_over(board, color) :
                 return evaluate_board(board,color)
 
@@ -151,7 +151,7 @@ def alphaBetaMax(board,color,alpha,beta, depth):
         for move in moves_list:
                 clone_board = helper.generate_board(board,move)
 
-                score = alphaBetaMin(clone_board,opposite_army[color],alpha,beta,depth-1)
+                score = alpha_beta_min(clone_board,opposite[color],alpha,beta,depth-1)
                 if score >= beta:
                         return beta
                 if score > alpha:

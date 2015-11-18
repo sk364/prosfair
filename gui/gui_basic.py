@@ -145,7 +145,7 @@ def looping_cpu_vs_human(board,size):
 														
 								draw_chessboard(board,size)
 								#move = cpu.minimax(board,opposite[x],1) ##depth is 1 
-								move = cpu.alphaBetaPruning(board,opposite[x],1)
+								move = cpu.alpha_beta_pruning(board,opposite[x],2)
 								board = helper.generate_board(board,move)
 								draw_chessboard(board,size)
 								break #Break here is necessary since we are deleting a key from the map on which we are iterating
@@ -165,7 +165,7 @@ def looping_cpu_vs_cpu(board,size):
                                  sys.exit()
                                  pygame.display.update()
 
-		move = cpu.minimax(board,color,1)#depth is 1
+		move = cpu.alpha_beta_pruning(board,color,1)#depth is 1
 		board = helper.generate_board(board,move)
 		color = opposite[color]
 		draw_chessboard(board,size)
