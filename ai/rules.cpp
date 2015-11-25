@@ -506,7 +506,7 @@ llu find_friend_occupied_area(vector<llu> & board,int piece)
 {
         llu occupied_friend_area = 0;
 
-        for(int i=( piece>OKING? OKING : KING );   i <= ( piece > OKING? OPAWN8 : PAWN8 ); i++)
+        for(int i=( piece<OKING? KING : OKING );   i <= ( piece < OKING? PAWN8 : OPAWN8 ); i++)
                 occupied_friend_area |= board[i];
 
         return occupied_friend_area;
@@ -617,7 +617,7 @@ move minimax(vector<llu> board,int army_king,int depth)
 	
 	//TODO take care of this -1,0,0 return value
 	if( moves_list.size() == 0 or depth == 0){
-		cout << "minimax, no moves to play"<<endl;
+	//	cout << "minimax, no moves to play"<<endl;
 		return  (move){-1,0,0};
 	}
 
@@ -809,7 +809,7 @@ move alpha_beta(vector<llu> & board,int army_king,int depth)
 		}
 	}
 
-
+	return best_move;
 }
 	
 float alpha_beta_min(vector<llu> & board,int army_king, float alpha, float beta, int depth )
@@ -825,25 +825,26 @@ float alpha_beta_min(vector<llu> & board,int army_king, float alpha, float beta,
 
 	if( moves_list.size() == 0 ) return evaluate_board(board,army_king);
 
-	float best_score = 99999;
+	float score = 99999;
+
+	float _alpha=alpha;
+	float _beta =beta;
 
 	for(int i =0; i<moves_list.size(); i++){
 		vector<llu> clone_board = generate_board(board,moves_list[i]);
-		float score = alpha_beta_max(clone_board,army_king<OKING?OKING:KING,alpha,beta,depth-1);
+		score = min(score, alpha_beta_max(clone_board,army_king<OKING?OKING:KING,_alpha,_beta,depth-1));
 
-		alpha = max(alpha,score);
+		_beta = min(_beta,score);
 	
-		if( beta <= alpha)
+		if( _beta <= _alpha)
 		{
-			cout <<"beta pruning" << endl;
-			return alpha;
+	//		cout <<"alpha pruning" << endl;
+			break;
 		}
-		if(score < alpha) 
-			beta = score;
 		
 	}
 
-	return min_play_memo[board_hash] = beta;
+	return min_play_memo[board_hash] = score;
 
 	}
 
@@ -863,23 +864,25 @@ float alpha_beta_max(vector<llu> & board,int army_king, float alpha, float beta,
 
 	if( moves_list.size() == 0 ) return evaluate_board(board,army_king);
 
-	float best_score = 99999;
+	float score = -99999;
+
+	float _alpha = alpha;
+	float _beta = beta;
 
 	for(int i =0; i<moves_list.size(); i++){
 		vector<llu> clone_board = generate_board(board,moves_list[i]);
-		float score = alpha_beta_min(clone_board,army_king<OKING?OKING:KING,alpha,beta,depth-1);
-	
-		if(score >= beta)
+		score =max(score, alpha_beta_min(clone_board,army_king<OKING?OKING:KING,_alpha,_beta,depth-1));
+		_alpha = max(_alpha,score);
+		if( _beta <= _alpha )
 		{
-			cout <<"alpha pruning" << endl;
-			return beta;
+	//		cout <<"beta pruning" << endl;
+			break;
 		}
-		if(score > alpha) 
-			alpha = score;
+
 		
 	}
 
-	return max_play_memo[board_hash] = alpha;
+	return max_play_memo[board_hash] = score;
 
 	}
 
@@ -896,25 +899,32 @@ int main(int argc,char *argv[])
 	int army_king = atoi(argv[1]);
 	int depth     = atoi(argv[2]);
 
+	FILE *f = fopen("test","w");
+	fprintf(f,"%d %d",army_king,depth);
+	fclose(f);
+
 	for(int i =0; i<32; i++)
 	{
 		int x,y;
 		cin >> y >> x;
 		--x,--y;
-		bb[i] = set_bit(x,y);
+		if( x > -1 and y >-1)
+			bb[i] = set_bit(x,y);
+		else
+			bb[i] = return_llu();
 	//	cout << "piece : " << i << endl;
 	//	print_bitboard(bb[i]);
 	}
 
 
-	pretty_print_board(bb);	
+	//pretty_print_board(bb);	
 
 
 	move ans = alpha_beta(bb,army_king,depth);
 	
 	cout << ans.piece << " " << ans.x <<" "<< ans.y << endl;
 
-	if( (move){-1,0,0} != ans )	pretty_print_board(generate_board(bb,ans));	
+	//if(  ans.piece != -1 )	pretty_print_board(generate_board(bb,ans));	
 	
 	return 0;
 

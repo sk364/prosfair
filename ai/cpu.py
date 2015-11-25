@@ -37,11 +37,14 @@ def evaluate_board(board,color):
 	print emperical_eval , risk_eval  , defence_eval 
 	
 	return risk_eval
+
+
+
 	
 
 
+''' this part of code is related to minimax and not being used due to presence of better alternative over it'''
 
-'''
 def minimax(board,color,depth):
 
 	if depth == 0 : return evaluate_board(board,color)
@@ -100,9 +103,69 @@ def max_play(board,color,depth):
 			best_score = score
 	
 	return best_score
-'''
+
+
+
+
+
+
+
+
+
+''' this is the better alternative over minimax '''
+
+import subprocess
 
 def alpha_beta_pruning(board,color,depth):
+
+	temp_str = "king queen bishop_1 bishop_2 knight_1 knight_2 rook_1 rook_2 pawn_1 pawn_2 pawn_3 pawn_4 pawn_5 pawn_6 pawn_7 pawn_8".split(" ")
+	data= ""
+
+	mm = {}
+
+	for i in xrange(len(temp_str)):
+		if temp_str[i] in board['white'].keys(): 
+			xy=board['white'][temp_str[i]]
+		else:
+			xy=[-1,-1]
+		
+		data = data + str(xy[0]) +" "+ str(xy[1]) + "\n"
+		#print xy[0],xy[1]
+		mm[i] = temp_str[i]
+
+	for i in xrange(len(temp_str)):
+		if temp_str[i] in board['black'].keys():
+			xy=board['black'][temp_str[i]]
+		else:
+			xy=[-1,-1]
+
+		data = data + str(xy[0]) + " " + str(xy[1]) + "\n"
+		#print xy[0],xy[1]
+		mm[16+i] = temp_str[i]
+
+	#print "\n\n"
+	#print data
+
+	player=16
+
+	print "player :"+str(player),"depth : "+str(depth)
+	proc = subprocess.Popen(["../ai/a.out", str(player), str(depth) ],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+
+	out = proc.communicate(data)
+
+	print out
+	piece, x, y = out[0].split(" ")
+	piece=mm[int(piece)]
+	x = int(x) +1
+	y = int(y) +1
+
+	print piece , x, y
+
+	return { 'color':"black", 'piece' : piece , 'new_position' : [y,x] }  
+	
+
+
+def alpha_beta_pruning_x(board,color,depth):
 	if depth == 0 : return evaluate_board(board,color)
         
         moves_list = helper.get_moves(board,color)

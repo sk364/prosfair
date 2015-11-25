@@ -146,7 +146,10 @@ def looping_cpu_vs_human(board,size):
 								draw_chessboard(board,size)
 								#move = cpu.minimax(board,opposite[x],1) ##depth is 1 
 								move = cpu.alpha_beta_pruning(board,opposite[x],2)
+								print move
+								print board
 								board = helper.generate_board(board,move)
+								print board
 								draw_chessboard(board,size)
 								break #Break here is necessary since we are deleting a key from the map on which we are iterating
 							 
