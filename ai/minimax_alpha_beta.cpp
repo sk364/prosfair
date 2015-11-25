@@ -653,6 +653,8 @@ float evaluate_board(vector<llu> & board,int army_king)
 
 	//cout << evaluate_board_memo.size() << " " << ++evaluate_board_calls << "\n";
 	
+	
+
 	llu board_hash = hash_pair(hasher(board),army_king) ;
 
 	if( evaluate_board_memo.find(board_hash) != evaluate_board_memo.end() )
@@ -660,20 +662,28 @@ float evaluate_board(vector<llu> & board,int army_king)
 	else{ 
 	
 
-	if ( in_checkmate(board,army_king) or in_check(board,army_king) ) return evaluate_board_memo[board_hash] =(float)-99999;
-	if ( in_checkmate(board,army_king<OKING?OKING:KING) or in_check(board,army_king<OKING?OKING:KING)) return evaluate_board_memo[board_hash] =(float)99999;
+	if ( in_checkmate(board,army_king) or in_check(board,army_king) ) { return evaluate_board_memo[board_hash] =(float)-99999;}
+	if ( in_checkmate(board,army_king<OKING?OKING:KING) or in_check(board,army_king<OKING?OKING:KING)) { return evaluate_board_memo[board_hash] =(float)99999;}
 
 		
 	
 	float sum = 0.0;
 
 	for(int i =KING; i<OKING; i++)
-		sum += (  board[i]!=return_llu() - board[i+OKING]!=return_llu() ) *piece_priority(i);
+		sum += (  (board[i]!=return_llu()) - (board[i+OKING]!=return_llu()) ) *piece_priority(i);
+
+	
 
 	if( army_king == KING)
+	{
+		
 		return evaluate_board_memo[board_hash] = sum;
+	}
 	else
-		return evaluate_board_memo[board_hash] = -sum;
+	{
+	
+		return evaluate_board_memo[board_hash] = sum;
+	}
 
 	}
 
@@ -803,12 +813,12 @@ move alpha_beta(vector<llu> & board,int army_king,int depth)
 		vector<llu> clone_board = generate_board(board,moves_list[i] );
 		float score = alpha_beta_min(clone_board,army_king<OKING?OKING:KING, alpha,beta,depth-1);
 
-		if(score > best_score ){
+		if(score < best_score ){
 			best_move = moves_list[i];
 			best_score = score;
 		}
 	}
-
+	//cout << "best_score" << " "<< best_score << endl;
 	return best_move;
 }
 	
@@ -825,26 +835,25 @@ float alpha_beta_min(vector<llu> & board,int army_king, float alpha, float beta,
 
 	if( moves_list.size() == 0 ) return evaluate_board(board,army_king);
 
-	float score = 99999;
 
 	float _alpha=alpha;
 	float _beta =beta;
 
 	for(int i =0; i<moves_list.size(); i++){
 		vector<llu> clone_board = generate_board(board,moves_list[i]);
-		score = min(score, alpha_beta_max(clone_board,army_king<OKING?OKING:KING,_alpha,_beta,depth-1));
+		float score = alpha_beta_max(clone_board,army_king<OKING?OKING:KING,_alpha,_beta,depth-1);
 
-		_beta = min(_beta,score);
+		if( score <= _alpha)
+			return min_play_memo[board_hash] = _alpha;
+		
+		if( score < beta)
+			_beta = score;
+		
 	
-		if( _beta <= _alpha)
-		{
-	//		cout <<"alpha pruning" << endl;
-			break;
-		}
 		
 	}
 
-	return min_play_memo[board_hash] = score;
+	return min_play_memo[board_hash] = _beta;
 
 	}
 
@@ -864,25 +873,24 @@ float alpha_beta_max(vector<llu> & board,int army_king, float alpha, float beta,
 
 	if( moves_list.size() == 0 ) return evaluate_board(board,army_king);
 
-	float score = -99999;
 
 	float _alpha = alpha;
 	float _beta = beta;
 
 	for(int i =0; i<moves_list.size(); i++){
 		vector<llu> clone_board = generate_board(board,moves_list[i]);
-		score =max(score, alpha_beta_min(clone_board,army_king<OKING?OKING:KING,_alpha,_beta,depth-1));
-		_alpha = max(_alpha,score);
-		if( _beta <= _alpha )
-		{
-	//		cout <<"beta pruning" << endl;
-			break;
-		}
+		float score = alpha_beta_min(clone_board,army_king<OKING?OKING:KING,_alpha,_beta,depth-1);
+	
+		if( score >= _beta)
+			return _beta;
+		if( score > _alpha )
+			_alpha =score;
+	
 
 		
 	}
 
-	return max_play_memo[board_hash] = score;
+	return max_play_memo[board_hash] = _alpha;
 
 	}
 
@@ -899,9 +907,6 @@ int main(int argc,char *argv[])
 	int army_king = atoi(argv[1]);
 	int depth     = atoi(argv[2]);
 
-	FILE *f = fopen("test","w");
-	fprintf(f,"%d %d",army_king,depth);
-	fclose(f);
 
 	for(int i =0; i<32; i++)
 	{

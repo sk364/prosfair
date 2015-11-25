@@ -2,9 +2,9 @@ import imp
 import json
 import copy
 
-rules = imp.load_source('chess_basic_rules','../common/rules.py')
-piece_value = json.load(open("../common/chess_piece_priority.json"))
-helper = imp.load_source('helper_functions','../common/helper_functions.py')
+rules = imp.load_source('chess_basic_rules','common/rules.py')
+piece_value = json.load(open("common/chess_piece_priority.json"))
+helper = imp.load_source('helper_functions','common/helper_functions.py')
 
 opposite = { "white" : "black" , "black" : "white" }
 
@@ -34,7 +34,7 @@ def evaluate_board(board,color):
 	risk_eval      = risk_comparision(board,color)
 	defence_eval   = defence_comparision(board,color)
 	
-	print emperical_eval , risk_eval  , defence_eval 
+	#print emperical_eval , risk_eval  , defence_eval 
 	
 	return risk_eval
 
@@ -114,6 +114,9 @@ def max_play(board,color,depth):
 
 ''' this is the better alternative over minimax '''
 
+
+# this alpha_beta_pruning is called from external c++ program
+
 import subprocess
 
 def alpha_beta_pruning(board,color,depth):
@@ -146,14 +149,17 @@ def alpha_beta_pruning(board,color,depth):
 	#print "\n\n"
 	#print data
 
-	player=16
+	if color == "white":
+		player=0
+	else:
+		player=16
 
-	print "player :"+str(player),"depth : "+str(depth)
-	proc = subprocess.Popen(["../ai/a.out", str(player), str(depth) ],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+	#print "player :"+str(player),"depth : "+str(depth)
+	proc = subprocess.Popen(["ai/minimax", str(player), str(depth) ],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
 
 	out = proc.communicate(data)
 
-	print out
+	#print out
 	piece, x, y = out[0].split(" ")
 	piece=mm[int(piece)]
 	x = int(x) +1
@@ -165,7 +171,7 @@ def alpha_beta_pruning(board,color,depth):
 	
 
 
-def alpha_beta_pruning_x(board,color,depth):
+def alpha_beta_pruning_python_native(board,color,depth):
 	if depth == 0 : return evaluate_board(board,color)
         
         moves_list = helper.get_moves(board,color)
