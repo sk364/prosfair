@@ -114,17 +114,17 @@ def in_check(board,color):
 
 
 def in_checkmate(board,color):
-	
-	if in_check(board,color) == True and not rules.legal_king_moves(board,color,"king"):
-		return True
+	 #TODO Here I have only condered the moves of king, and checked if any his any move can help him or not,testing it is remaining
 		
 	#if moves of the king are null, then it is surrounded by its own pieces and is safe.
-	if not rules.legal_king_moves(board,color,"king"):		
+
+	if in_check(board,color) == False:
 		return False
 
-	for x in rules.legal_king_moves(board,color,"king"):
-		 if in_check(generate_board(board,{"color":color,"new_position":x,"piece":"king"}),color) == False:
-			return False
+	for p in get_moves(board,color):
+			 if  in_check(generate_board(board,p),color) == False:
+				return False
+
 
 	return True
 
