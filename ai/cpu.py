@@ -37,7 +37,7 @@ def evaluate_board(board,color):
 	print emperical_eval , risk_eval  , defence_eval 
 	
 	return risk_eval
-
+	
 
 
 
