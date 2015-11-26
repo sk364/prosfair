@@ -5,11 +5,11 @@ import json
 import imp
 
 
-chessboard = json.load(open("../common/initial_state.json"))
-image_dir = "../res/basic_chess_pieces/"
-rules = imp.load_source('chess_basic_rules','../common/rules.py')
-cpu = imp.load_source('chess_minimax_ai','../ai/cpu.py')
-helper = imp.load_source('helper_functions','../common/helper_functions.py')
+chessboard = json.load(open("./common/initial_state.json"))
+image_dir = "./res/basic_chess_pieces/"
+rules = imp.load_source('chess_basic_rules','./common/rules.py')
+cpu = imp.load_source('chess_minimax_ai','./ai/cpu.py')
+helper = imp.load_source('helper_functions','./common/helper_functions.py')
 
 opposite = { "white" : "black" , "black" : "white" } 
 
@@ -131,7 +131,6 @@ def looping_cpu_vs_human(board,size):
 
 
 							if valid and x == "white":
-								print board
 								board[x][k][1] = new_x
 								board[x][k][0] = new_y
 								killed_piece = None
@@ -145,7 +144,7 @@ def looping_cpu_vs_human(board,size):
 														
 								draw_chessboard(board,size)
 								#move = cpu.minimax(board,opposite[x],1) ##depth is 1 
-								move = cpu.alpha_beta_pruning(board,opposite[x],2)
+								move = cpu.alpha_beta_pruning(board,opposite[x],5)
 								board = helper.generate_board(board,move)
 								draw_chessboard(board,size)
 								break #Break here is necessary since we are deleting a key from the map on which we are iterating
@@ -165,7 +164,7 @@ def looping_cpu_vs_cpu(board,size):
                                  sys.exit()
                                  pygame.display.update()
 
-		move = cpu.alpha_beta_pruning(board,color,1)#depth is 1
+		move = cpu.alpha_beta_pruning_python_native(board,color,1)#depth is 1
 		board = helper.generate_board(board,move)
 		color = opposite[color]
 		draw_chessboard(board,size)

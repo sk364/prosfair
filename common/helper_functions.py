@@ -2,8 +2,8 @@ import imp
 import json
 import copy
 
-rules = imp.load_source('chess_basic_rules','../common/rules.py')
-piece_value = json.load(open("../common/chess_piece_priority.json"))
+rules = imp.load_source('chess_basic_rules','./common/rules.py')
+piece_value = json.load(open("./common/chess_piece_priority.json"))
 
 opposite = {  "white" :"black" , "black": "white" }
 

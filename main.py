@@ -1,9 +1,19 @@
-import gui_basic
+#!/usr/bin/env python
+
+import os
+import imp
 import sys
 import pygame
+
+
+os.system("export PROSFAIR_PATH=`pwd`")
+
+gui_basic = imp.load_source('gui_basic','gui/gui_basic.py')
  
 pygame.init()
  
+
+
  
 class MenuItem(pygame.font.Font):
 	def __init__(self, text, font=None, font_size=48, font_color=(255, 255, 255), (pos_x, pos_y)=(0, 0)):
@@ -110,18 +120,18 @@ if __name__ == "__main__":
 
    	screen = pygame.display.set_mode((600, 600), 0, 32)
     
-   	BackGround = Background("../res/Background/background_chess_set.jpg", [0,0])
+   	BackGround = Background("res/Background/background_chess_set.jpg", [0,0])
 
    	screen.fill(WHITE)
    	screen.blit(BackGround.image, BackGround.rect)
 
-   	funcs = { 	"Play v/s CPU" : gui_basic.looping_cpu_vs_human,
-		"Multiplayer Mode": gui_basic.looping_human_vs_human,
+   	funcs = { "Play v/s CPU" : gui_basic.looping_cpu_vs_human,
+		"2 Player Mode": gui_basic.looping_human_vs_human,
 		"Watch the computer": gui_basic.looping_cpu_vs_cpu,
 		"Quit" : sys.exit
     	}
 
-   	menu_items = ('Play v/s CPU','Multiplayer Mode','Watch the computer', 'Quit')
+   	menu_items = ('Play v/s CPU','2 Player Mode','Watch the computer', 'Quit')
  
    	pygame.display.set_caption('Game Menu')
    	
