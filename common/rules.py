@@ -2,10 +2,9 @@
 #Original Author : Sachin Kukreja (skad5455[at]gmail[dot]com)
 import json
 
-#chess_board = json.load(open("../common/initial_state.json"))
+#board = json.load(open("../common/initial_state.json"))
 
 opposite_army = { "white" : "black" , "black" : "white" }
-
 
 def legal_king_moves(board,color,king='king'):
 	if king not in board[color].keys(): return []
@@ -16,7 +15,7 @@ def legal_king_moves(board,color,king='king'):
 		for j in xrange(3):
 			if  9 > x+i-1 > 0 and 9 > y+j-1 >0:
 				if x+i-1 != x or y+j-1 != y:
-					king_moves  = king_moves +  [[x+i-1,y+j-1]]
+					king_moves  = king_moves +  [[x+i-1,y+j-1]]	
 
 	return [ x for x in king_moves if x not in board[color].values() ]
 
@@ -162,7 +161,6 @@ def legal_rook_moves(board,color,rook):
 	
 	return [x for x in rook_moves if x not in board[color].values()]
 
-
 def legal_queen_moves(board, color,queen="queen"):
 	if queen not in board[color].keys(): []
 	x , y = board[color][queen]
@@ -170,7 +168,4 @@ def legal_queen_moves(board, color,queen="queen"):
 	queen_moves = legal_rook_moves(board,color,queen) + legal_bishop_moves(board,color,queen)
 
 	return [x for x in queen_moves if x not in board[color].values()]
-
-
-
 
