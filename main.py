@@ -7,7 +7,7 @@ import pygame
 
 
 os.system("export PROSFAIR_PATH=`pwd`")
-
+os.system("g++ ai/minimax_alpha_beta.cpp -o ai/minimax")
 gui_basic = imp.load_source('gui_basic','gui/gui_basic.py')
  
 pygame.init()
