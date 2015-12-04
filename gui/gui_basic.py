@@ -30,6 +30,10 @@ def get_chess_square(x,y,size):
 def get_chess_square_reverse(a,b,size):
 	return ((a-1)*size/8,(b-1)*size/8)	
 
+def get_chess_square_border(r, s, size):
+        return((r-1)*size/8+2, (s-1)*size/8+2)
+
+
 
 
 pygame.init()
@@ -82,6 +86,16 @@ def draw_chessboard( board, size,p_list = None):
 		for p in p_list:
 			pygame.draw.rect(screen,BLUE,(get_chess_square_reverse(p[1],p[0],SIZE),(SIZE/8,SIZE/8)))
 
+			if (p[1]+p[0])%2!=0:
+
+                                pygame.draw.rect(screen, WHITE, (get_chess_square_border(p[1], p[0], SIZE), (SIZE/8-4, SIZE/8-4)))
+
+                        else:
+
+                                 pygame.draw.rect(screen, GRAY, (get_chess_square_border(p[1], p[0], SIZE), (SIZE/8-4, SIZE/8-4)))
+
+
+
 
 	pygame.display.update()
 	 
@@ -98,6 +112,8 @@ def looping_cpu_vs_human(board,size):
 	new_x=0
 	new_y=0
 	color = "white"
+	
+	flag = 0;
 
 	while True:
 		 
@@ -119,79 +135,129 @@ def looping_cpu_vs_human(board,size):
 					board = chessboards[cur]
 				 #updating the screen with the next or prev chessboard
 				 draw_chessboard(board,size)
-			 
+			 			 
+
 			 if event.type == pygame.MOUSEBUTTONDOWN:
-				 x,y= pygame.mouse.get_pos()
-				 old_x,old_y = get_chess_square(x,y,SIZE/8)
-				 p= []
-  				 for x in ['white','black']:
-                                        for k in board[x].keys():
-                                                if board[x][k][1] == old_x and board[x][k][0] == old_y:
-                                                        #print k
-                                                        if "bishop" in k:
-                                                                p= rules.legal_bishop_moves(board,x,k)
-                                                        elif "pawn" in k:
-                                                                p= rules.legal_pawn_moves(board,x,k)
-                                                        elif "knight" in k:
-                                                                p= rules.legal_knight_moves(board,x,k)
-                                                        elif "rook" in k:
-								p= rules.legal_rook_moves(board,x,k)
-                                                        elif "queen" in k:
-                                                                p= rules.legal_queen_moves(board,x,k)
-                                                        elif "king" in k:
-                                                                p= rules.legal_king_moves( board,x,k)
+		 		if flag == 1:
+					x,y= pygame.mouse.get_pos()
+                                       	new_x,new_y = get_chess_square(x,y,SIZE/8)
+                                       	#print new_x,new_y
+                                       	valid = False
+                                       	for x in ['white','black']:
+                                               	for k in board[x].keys():
+                                                       	if board[x][k][1] == old_x and board[x][k][0] == old_y:
+                                                               	if "bishop" in k:
+                                                                       	if [new_y,new_x] in rules.legal_bishop_moves(board,x,k): valid = True
+                                                               	elif "pawn" in k:
+									if [new_y,new_x] in rules.legal_pawn_moves(board,x,k):   valid = True
+                                                                elif "knight" in k:
+                                                                       	if [new_y,new_x] in rules.legal_knight_moves(board,x,k): valid = True
+                                                               	elif "rook" in k:
+                                                                       	if [new_y,new_x] in rules.legal_rook_moves(board,x,k):   valid = True
+                                                               	elif "queen" in k:
+                                                                       	if [new_y,new_x] in rules.legal_queen_moves(board,x,k):  valid = True
+								elif "king" in k:
+                                                                       	if [new_y,new_x] in rules.legal_king_moves(board,x,k): valid = True
 
+                                                               	#if piece is moved to valid position then update the piece's coordinates and check if it is killing other piece
+                                                               	if valid and x == color:
+                                                                       	board[x][k][1] = new_x
+                                                                       	board[x][k][0] = new_y
+                                                                       	killed_piece = None
+                                                                       	for k,v in board[opposite[x]].iteritems():
+                                                                               	if v[0] == new_y and v[1] == new_x:
+                                                                                       	killed_piece = k
+                                                                        	if killed_piece and (killed_piece in board[opposite[x]].keys()): del board[opposite[x]][killed_piece]
 
+                                                                                                  
+                                                                        draw_chessboard(board,size)
+                                                                       	#move = cpu.minimax(board,opposite[x],1) ##depth is 1
 
-				 draw_chessboard(board,size,p)
-				 #print old_x,old_y
+									#CPU turn
+                                                                       	move = cpu.alpha_beta_pruning(board,opposite[x],7)
+                                                                       	#board = helper.generate_board(board,move)
+
+                                                                       	#referencing the new board generated by helper first to chessboard array element
+                                                                       	chessboards[cur] = helper.generate_board(board,move)
+                                                                       	board = chessboards[cur]
+
+                                                                       	draw_chessboard(board,size)
+                                                                       	flag = 0
+									 
+									break #Break here is necessary since we are deleting a key from the map on which we are iterating
+				else:
+					x,y= pygame.mouse.get_pos()
+			 		old_x,old_y = get_chess_square(x,y,SIZE/8)
+		 			p= []
+ 					for x in ['white','black']:
+                                 		for k in board[x].keys():
+                                              		if board[x][k][1] == old_x and board[x][k][0] == old_y:                                                        		#print k
+                                                       		if "bishop" in k:
+                                                               		p= rules.legal_bishop_moves(board,x,k)
+                                                       		elif "pawn" in k:
+                                                             		p= rules.legal_pawn_moves(board,x,k)
+                                                       		elif "knight" in k:
+                                                               		p= rules.legal_knight_moves(board,x,k)
+                                                       		elif "rook" in k:
+									p= rules.legal_rook_moves(board,x,k)
+                                                       		elif "queen" in k:
+                                                               		p= rules.legal_queen_moves(board,x,k)
+                                                       		elif "king" in k:
+                                                               		p= rules.legal_king_moves( board,x,k)
+						
+				 		draw_chessboard(board,size,p)
+				 	#print old_x,old_y
 					
 			 if event.type == pygame.MOUSEBUTTONUP:
-				 x,y= pygame.mouse.get_pos()
-				 new_x,new_y = get_chess_square(x,y,SIZE/8)
-				 #print new_x,new_y
-				 valid = False
-				 for x in ['white','black']:
-					for k in board[x].keys():
-						if board[x][k][1] == old_x and board[x][k][0] == old_y:
-							if "bishop" in k:
-								if [new_y,new_x] in rules.legal_bishop_moves(board,x,k): valid = True
-							elif "pawn" in k:
-								if [new_y,new_x] in rules.legal_pawn_moves(board,x,k):   valid = True
-							elif "knight" in k:
-								if [new_y,new_x] in rules.legal_knight_moves(board,x,k): valid = True
-							elif "rook" in k:
-								if [new_y,new_x] in rules.legal_rook_moves(board,x,k):   valid = True
-							elif "queen" in k:
-								if [new_y,new_x] in rules.legal_queen_moves(board,x,k):  valid = True
-							elif "king" in k:
-								if [new_y,new_x] in rules.legal_king_moves(board,x,k): valid = True
-
-							#if piece is moved to valid position then update the piece's coordinates and check if it is killing other piece
-							if valid and x == color:
-								board[x][k][1] = new_x
-								board[x][k][0] = new_y
-								killed_piece = None
-								for k,v in board[opposite[x]].iteritems():
-									if v[0] == new_y and v[1] == new_x:
-										killed_piece = k
-								
-								if killed_piece and (killed_piece in board[opposite[x]].keys()): del board[opposite[x]][killed_piece]
+				x,y= pygame.mouse.get_pos()
+			 	new_x,new_y = get_chess_square(x,y,SIZE/8)
+				
+				if new_x == old_x and new_y == old_y:
+					flag = 1
+					continue
+			
+				else:	
+			 		#print new_x,new_y
+			 		valid = False
+					for x in ['white','black']:
+						for k in board[x].keys():
+							if board[x][k][1] == old_x and board[x][k][0] == old_y:
+								if "bishop" in k:
+									if [new_y,new_x] in rules.legal_bishop_moves(board,x,k): valid = True
+								elif "pawn" in k:
+									if [new_y,new_x] in rules.legal_pawn_moves(board,x,k):   valid = True
+								elif "knight" in k:
+									if [new_y,new_x] in rules.legal_knight_moves(board,x,k): valid = True
+								elif "rook" in k:
+									if [new_y,new_x] in rules.legal_rook_moves(board,x,k):   valid = True
+								elif "queen" in k:
+									if [new_y,new_x] in rules.legal_queen_moves(board,x,k):  valid = True
+								elif "king" in k:
+									if [new_y,new_x] in rules.legal_king_moves(board,x,k): valid = True
+									#if piece is moved to valid position then update the piece's coordinates and check if it is killing other piece
+								if valid and x == color:
+									board[x][k][1] = new_x
+									board[x][k][0] = new_y
+									killed_piece = None
+									for k,v in board[opposite[x]].iteritems():
+										if v[0] == new_y and v[1] == new_x:
+											killed_piece = k
+							
+										if killed_piece and (killed_piece in board[opposite[x]].keys()): del board[opposite[x]][killed_piece]
 						
 													
 														
-								draw_chessboard(board,size)
-								#move = cpu.minimax(board,opposite[x],1) ##depth is 1
-								#CPU turn
-								move = cpu.alpha_beta_pruning(board,opposite[x],7)
-								#board = helper.generate_board(board,move)
+									draw_chessboard(board,size)										#move = cpu.minimax(board,opposite[x],1) ##depth is 1
+										#CPU turn
+									
+									move = cpu.alpha_beta_pruning(board,opposite[x],7)
+										#board = helper.generate_board(board,move)
+										#referencing the new board generated by helper first to chessboard array element
+									chessboards[cur] = helper.generate_board(board,move)
+									board = chessboards[cur]
 
-								#referencing the new board generated by helper first to chessboard array element
-								chessboards[cur] = helper.generate_board(board,move)
-								board = chessboards[cur]
-
-								draw_chessboard(board,size)
-								break #Break here is necessary since we are deleting a key from the map on which we are iterating
+									draw_chessboard(board,size)
+									break #Break here is necessary since we are deleting a key from the map on which we are iterating
 							 
 				 
 
@@ -247,6 +313,8 @@ def looping_human_vs_human(board, size):
 
 	color = "white"
 
+	flag = 0
+
         while True:
 
                  for event in pygame.event.get():
@@ -269,67 +337,120 @@ def looping_human_vs_human(board, size):
                          	 draw_chessboard(board,size)
 
                          if event.type == pygame.MOUSEBUTTONDOWN:
-                                 x,y= pygame.mouse.get_pos()
-                                 old_x,old_y = get_chess_square(x,y,SIZE/8)
-                                 p= []
-                                 for x in ['white','black']:
-                                        for k in board[x].keys():
-                                                if board[x][k][1] == old_x and board[x][k][0] == old_y:
-                                                        #print k
-                                                        if "bishop" in k:
-                                                                p= rules.legal_bishop_moves(board,x,k)
-                                                        elif "pawn" in k:
-                                                                #print "hey"
-                                                                p= rules.legal_pawn_moves(board,x,k)
-                                                        elif "knight" in k:
-                                                                p= rules.legal_knight_moves(board,x,k)
-                                                        elif "rook" in k:
+
+				if flag == 1:
+                                	x,y= pygame.mouse.get_pos()
+        	                        new_x,new_y = get_chess_square(x,y,SIZE/8)
+					#print new_x,new_y
+					valid = False
+                                        for x in ['white','black']:
+                                                for k in board[x].keys():
+                                                        if board[x][k][1] == old_x and board[x][k][0] == old_y:
+                                                                if "bishop" in k:
+                                                                        if [new_y,new_x] in rules.legal_bishop_moves(board,x,k): valid = True
+                                                                elif "pawn" in k:
+                                                                        if [new_y,new_x] in rules.legal_pawn_moves(board,x,k):   valid = True
+                                                                elif "knight" in k:
+                                                                        if [new_y,new_x] in rules.legal_knight_moves(board,x,k): valid = True
+                                                                elif "rook" in k:
+                                                                        if [new_y,new_x] in rules.legal_rook_moves(board,x,k):   valid = True
+                                                                elif "queen" in k:
+									if [new_y,new_x] in rules.legal_queen_moves(board,x,k):  valid = True 
+
+								elif "king" in k:
+                                                                        if [new_y,new_x] in rules.legal_king_moves(board,x,k): valid = True
+
+                                                                #if piece is moved to valid position then update the piece's coordinates and check if it is killing other piece
+                                                                if valid and x == color:
+                                                                        board[x][k][1] = new_x
+                                                                        board[x][k][0] = new_y
+                                                                        killed_piece = None
+                                                                        for k,v in board[opposite[x]].iteritems():
+                                                                                if v[0] == new_y and v[1] == new_x:
+                                                                                        killed_piece = k
+
+                                                                        if killed_piece and (killed_piece in board[opposite[x]].keys()): del board[opposite[x]][killed_piece]
+
+
+
+
+                                                                        draw_chessboard(board,size)
+                        					flag = 0        
+	
+			                                        break
+                                	color = opposite[color]
+
+
+
+				else:
+				 	x,y= pygame.mouse.get_pos()
+                                	old_x,old_y = get_chess_square(x,y,SIZE/8)
+                                 	p= []
+                                 	for x in ['white','black']:
+                                        	for k in board[x].keys():
+                                                	if board[x][k][1] == old_x and board[x][k][0] == old_y:
+                                                        	#print k
+                                                        	if "bishop" in k:
+                                                                	p= rules.legal_bishop_moves(board,x,k)
+                                                        	elif "pawn" in k:
+                                                                	#print "hey"
+                                                                	p= rules.legal_pawn_moves(board,x,k)
+                                                        	elif "knight" in k:
+                                                                	p= rules.legal_knight_moves(board,x,k)
+                                                        	elif "rook" in k:
                                                                         p= rules.legal_rook_moves(board,x,k)
-                                                        elif "queen" in k:
-                                                                p= rules.legal_queen_moves(board,x,k)
-                                                        elif "king" in k:
-                                                                p= rules.legal_king_moves( board,x,k)
-                                 draw_chessboard(board,size,p)
-                                 #print old_x,old_y
+                                                        	elif "queen" in k:
+                                                                	p= rules.legal_queen_moves(board,x,k)
+                                                        	elif "king" in k:
+                                                                	p= rules.legal_king_moves( board,x,k)
+                                 	draw_chessboard(board,size,p)
+                                 	#print old_x,old_y
 
                          if event.type == pygame.MOUSEBUTTONUP:
                                  x,y= pygame.mouse.get_pos()
                                  new_x,new_y = get_chess_square(x,y,SIZE/8)
-                                 #print new_x,new_y
-                                 valid = False
-                                 for x in ['white','black']:
-                                        for k in board[x].keys():
-                                                if board[x][k][1] == old_x and board[x][k][0] == old_y:
-                                                        if "bishop" in k:
-                                                                if [new_y,new_x] in rules.legal_bishop_moves(board,x,k): valid = True
-                                                        elif "pawn" in k:
-                                                                if [new_y,new_x] in rules.legal_pawn_moves(board,x,k):   valid = True
-                                                        elif "knight" in k:
-                                                                if [new_y,new_x] in rules.legal_knight_moves(board,x,k): valid = True
-                                                        elif "rook" in k:
-                                                                if [new_y,new_x] in rules.legal_rook_moves(board,x,k):   valid = True
-                                                        elif "queen" in k:
-                                                                if [new_y,new_x] in rules.legal_queen_moves(board,x,k):  valid = True
-                                                        elif "king" in k:
-                                                                if [new_y,new_x] in rules.legal_king_moves(board,x,k): valid = True
+                                 
+				 if new_x == old_x and new_y == old_y:
+	
+					flag = 1
+					continue
+				
+				 else:
+					#print new_x,new_y
+                                 	valid = False
+                                 	for x in ['white','black']:
+                                        	for k in board[x].keys():
+                                                	if board[x][k][1] == old_x and board[x][k][0] == old_y:
+                                                        	if "bishop" in k:
+                                                                	if [new_y,new_x] in rules.legal_bishop_moves(board,x,k): valid = True
+                                                        	elif "pawn" in k:
+                                                                	if [new_y,new_x] in rules.legal_pawn_moves(board,x,k):   valid = True
+                                                        	elif "knight" in k:
+                                                                	if [new_y,new_x] in rules.legal_knight_moves(board,x,k): valid = True
+                                                        	elif "rook" in k:
+                                                                	if [new_y,new_x] in rules.legal_rook_moves(board,x,k):   valid = True
+                                                        	elif "queen" in k:
+                                                                	if [new_y,new_x] in rules.legal_queen_moves(board,x,k):  valid = True
+                                                        	elif "king" in k:
+                                                                	if [new_y,new_x] in rules.legal_king_moves(board,x,k): valid = True
 
-                                                        #if piece is moved to valid position then update the piece's coordinates and check if it is killing other piece
-                                                        if valid and x == color:
-                                                                board[x][k][1] = new_x
-                                                                board[x][k][0] = new_y
-                                                                killed_piece = None
-                                                                for k,v in board[opposite[x]].iteritems():
-                                                                        if v[0] == new_y and v[1] == new_x:
-                                                                                killed_piece = k
+                                                        	#if piece is moved to valid position then update the piece's coordinates and check if it is killing other piece
+                                                        	if valid and x == color:
+                                                                	board[x][k][1] = new_x
+                                                                	board[x][k][0] = new_y
+                                                                	killed_piece = None
+                                                                	for k,v in board[opposite[x]].iteritems():
+                                                                        	if v[0] == new_y and v[1] == new_x:
+                                                                                	killed_piece = k
 
-                                                                if killed_piece and (killed_piece in board[opposite[x]].keys()): del board[opposite[x]][killed_piece]
-
-
+                                                                	if killed_piece and (killed_piece in board[opposite[x]].keys()): del board[opposite[x]][killed_piece]
 
 
-                                                                draw_chessboard(board,size)
-								break
-			 color = opposite[color]
+
+
+                                                                	draw_chessboard(board,size)
+									break
+			 		color = opposite[color]
 
 
 ##main loop ... 
