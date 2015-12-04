@@ -306,8 +306,8 @@ llu moves_bishop(vector<llu> & board,llu b)
 	int p = find_pos(b);
 	int x = p%8;
 	int y = p/8;
-	if ( p < 0 ) return return_llu();
-
+	//if ( p < 0 ) return return_llu();
+	if ( p < 0 ) return 0LLU;
 
 	llu res = 0;
 
