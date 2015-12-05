@@ -90,11 +90,81 @@ def draw_chessboard( board, size,p_list = None):
 
                                 pygame.draw.rect(screen, WHITE, (get_chess_square_border(p[1], p[0], SIZE), (SIZE/8-4, SIZE/8-4)))
 
+				x, y = p[1], p[0]
+				for x in ['white','black']:
+                                                for k in board[x].keys():
+                                                        if board[x][k][1] == p[1] and board[x][k][0] == p[0]:                                                                 #print k
+                                                                if "bishop" in k:
+                                                                       	img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+
+                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+
+                                                                elif "pawn" in k:
+                                                                       	img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+
+                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+                                                                elif "knight" in k:
+                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+ 
+                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+	                                                              
+								elif "rook" in k:
+                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+ 
+                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+
+
+                                                                elif "queen" in k:
+                                                                       	img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+ 
+                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+
+                                                                elif "king" in k:
+                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+ 
+                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+
+
+
+
                         else:
 
-                                 pygame.draw.rect(screen, GRAY, (get_chess_square_border(p[1], p[0], SIZE), (SIZE/8-4, SIZE/8-4)))
+                        	 pygame.draw.rect(screen, GRAY, (get_chess_square_border(p[1], p[0], SIZE), (SIZE/8-4, SIZE/8-4)))
 
+				 x, y = p[1], p[0]
+                                 for x in ['white', 'black']:
+                                                for k in board[x].keys():
+                                                        if board[x][k][1] == p[1] and board[x][k][0] == p[0]:                                                                 #print k
+                                                                if "bishop" in k:
+                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
 
+                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+
+                                                                elif "pawn" in k:
+                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+
+                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+
+                                                                elif "knight" in k:
+                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+
+                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+
+                                                                elif "rook" in k:
+                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+
+                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+
+								elif "queen" in k:
+                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+
+                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+		
+					
+								elif "king" in k:
+                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+
+                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
 
 
 	pygame.display.update()
