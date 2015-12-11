@@ -87,84 +87,45 @@ def draw_chessboard( board, size,p_list = None):
 			pygame.draw.rect(screen,BLUE,(get_chess_square_reverse(p[1],p[0],SIZE),(SIZE/8,SIZE/8)))
 
 			if (p[1]+p[0])%2!=0:
-
                                 pygame.draw.rect(screen, WHITE, (get_chess_square_border(p[1], p[0], SIZE), (SIZE/8-4, SIZE/8-4)))
+			else:
+				pygame.draw.rect(screen, GRAY,  (get_chess_square_border(p[1], p[0], SIZE), (SIZE/8-4, SIZE/8-4)))
+			x, y = p[1], p[0]
+			for x in ['white','black']:
+                                        for k in board[x].keys():
+                                                if board[x][k][1] == p[1] and board[x][k][0] == p[0]:                                                                 #print k
+                                                        if "bishop" in k:
+                                                               	img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
 
-				x, y = p[1], p[0]
-				for x in ['white','black']:
-                                                for k in board[x].keys():
-                                                        if board[x][k][1] == p[1] and board[x][k][0] == p[0]:                                                                 #print k
-                                                                if "bishop" in k:
-                                                                       	img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+                						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
 
-                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+                                                        elif "pawn" in k:
+                                                               	img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
 
-                                                                elif "pawn" in k:
-                                                                       	img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+                						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+                                                        elif "knight" in k:
+                                                                img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
 
-                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
-                                                                elif "knight" in k:
-                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
- 
-                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
-	                                                              
-								elif "rook" in k:
-                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
- 
-                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+                						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+                                                              
+							elif "rook" in k:
+                                                                img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
 
-
-                                                                elif "queen" in k:
-                                                                       	img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
- 
-                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
-
-                                                                elif "king" in k:
-                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
- 
-                        						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+                						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
 
 
+                                                        elif "queen" in k:
+                                                               	img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+
+                						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
+
+                                                        elif "king" in k:
+                                                                img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
+
+                						screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
 
 
-                        else:
 
-                        	 pygame.draw.rect(screen, GRAY, (get_chess_square_border(p[1], p[0], SIZE), (SIZE/8-4, SIZE/8-4)))
-
-				 x, y = p[1], p[0]
-                                 for x in ['white', 'black']:
-                                                for k in board[x].keys():
-                                                        if board[x][k][1] == p[1] and board[x][k][0] == p[0]:                                                                 #print k
-                                                                if "bishop" in k:
-                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
-
-                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
-
-                                                                elif "pawn" in k:
-                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
-
-                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
-
-                                                                elif "knight" in k:
-                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
-
-                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
-
-                                                                elif "rook" in k:
-                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
-
-                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
-
-								elif "queen" in k:
-                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
-
-                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
-		
-					
-								elif "king" in k:
-                                                                        img = pygame.image.load(image_dir + x + "_" + re.findall('[a-z]+',k)[0]+'.png')
-
-                                                                        screen.blit(img,( board[x][k][1]*SIZE/8 - SIZE/8+SIZE/80, board[x][k][0] * SIZE/8 - SIZE/8+SIZE/80 ))
 
 
 	pygame.display.update()
@@ -172,7 +133,7 @@ def draw_chessboard( board, size,p_list = None):
 
 def looping_cpu_vs_human(board,size):
 	global chessboards	
-
+	global flag
 	SIZE = size
 	
 	draw_chessboard(board,size)
@@ -183,7 +144,7 @@ def looping_cpu_vs_human(board,size):
 	new_y=0
 	color = "white"
 	
-	flag = 0;
+	flag= 0
 
 	while True:
 		 
@@ -209,6 +170,7 @@ def looping_cpu_vs_human(board,size):
 
 			 if event.type == pygame.MOUSEBUTTONDOWN:
 		 		if flag == 1:
+					flag =0
 					x,y= pygame.mouse.get_pos()
                                        	new_x,new_y = get_chess_square(x,y,SIZE/8)
                                        	#print new_x,new_y
@@ -237,14 +199,16 @@ def looping_cpu_vs_human(board,size):
                                                                        	for k,v in board[opposite[x]].iteritems():
                                                                                	if v[0] == new_y and v[1] == new_x:
                                                                                        	killed_piece = k
-                                                                        	if killed_piece and (killed_piece in board[opposite[x]].keys()): del board[opposite[x]][killed_piece]
+                                                                        	if killed_piece and (killed_piece in board[opposite[x]].keys()): 
+											del board[opposite[x]][killed_piece]
+											break
 
                                                                                                   
                                                                         draw_chessboard(board,size)
                                                                        	#move = cpu.minimax(board,opposite[x],1) ##depth is 1
 
 									#CPU turn
-                                                                       	move = cpu.alpha_beta_pruning(board,opposite[x],7)
+                                                                       	move = cpu.alpha_beta_pruning(board,opposite[x],3)
                                                                        	#board = helper.generate_board(board,move)
 
                                                                        	#referencing the new board generated by helper first to chessboard array element
@@ -252,10 +216,10 @@ def looping_cpu_vs_human(board,size):
                                                                        	board = chessboards[cur]
 
                                                                        	draw_chessboard(board,size)
-                                                                       	flag = 0
 									 
 									break #Break here is necessary since we are deleting a key from the map on which we are iterating
 				else:
+					print "here"
 					x,y= pygame.mouse.get_pos()
 			 		old_x,old_y = get_chess_square(x,y,SIZE/8)
 		 			p= []
@@ -279,6 +243,7 @@ def looping_cpu_vs_human(board,size):
 				 	#print old_x,old_y
 					
 			 if event.type == pygame.MOUSEBUTTONUP:
+				print "here1"
 				x,y= pygame.mouse.get_pos()
 			 	new_x,new_y = get_chess_square(x,y,SIZE/8)
 				
@@ -313,7 +278,9 @@ def looping_cpu_vs_human(board,size):
 										if v[0] == new_y and v[1] == new_x:
 											killed_piece = k
 							
-										if killed_piece and (killed_piece in board[opposite[x]].keys()): del board[opposite[x]][killed_piece]
+										if killed_piece and (killed_piece in board[opposite[x]].keys()): 
+											del board[opposite[x]][killed_piece]
+											break
 						
 													
 														
@@ -371,6 +338,7 @@ def looping_cpu_vs_cpu(board,size):
 
 def looping_human_vs_human(board, size):
 	global chessboards
+	global flag
 
         SIZE = size
 
@@ -382,7 +350,6 @@ def looping_human_vs_human(board, size):
         new_y=0
 
 	color = "white"
-
 	flag = 0
 
         while True:
@@ -413,7 +380,7 @@ def looping_human_vs_human(board, size):
         	                        new_x,new_y = get_chess_square(x,y,SIZE/8)
 					#print new_x,new_y
 					valid = False
-                                        for x in ['white','black']:
+                                        for x in [color]:
                                                 for k in board[x].keys():
                                                         if board[x][k][1] == old_x and board[x][k][0] == old_y:
                                                                 if "bishop" in k:
@@ -445,10 +412,9 @@ def looping_human_vs_human(board, size):
 
 
                                                                         draw_chessboard(board,size)
-                        					flag = 0        
-	
+									color = opposite[color]	
 			                                        break
-                                	color = opposite[color]
+					flag = 0
 
 
 
@@ -456,7 +422,7 @@ def looping_human_vs_human(board, size):
 				 	x,y= pygame.mouse.get_pos()
                                 	old_x,old_y = get_chess_square(x,y,SIZE/8)
                                  	p= []
-                                 	for x in ['white','black']:
+                                 	for x in [color]:
                                         	for k in board[x].keys():
                                                 	if board[x][k][1] == old_x and board[x][k][0] == old_y:
                                                         	#print k
@@ -488,7 +454,7 @@ def looping_human_vs_human(board, size):
 				 else:
 					#print new_x,new_y
                                  	valid = False
-                                 	for x in ['white','black']:
+                                 	for x in [color]:
                                         	for k in board[x].keys():
                                                 	if board[x][k][1] == old_x and board[x][k][0] == old_y:
                                                         	if "bishop" in k:
@@ -519,8 +485,8 @@ def looping_human_vs_human(board, size):
 
 
                                                                 	draw_chessboard(board,size)
+									color = opposite[color]
 									break
-			 		color = opposite[color]
 
 
 ##main loop ... 
