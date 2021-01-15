@@ -1,0 +1,11 @@
+- To fix
+    - checkmate condition
+    - CPU
+        - evaluation
+            - piece value
+            - piece position
+            - checkmate
+            - attack score
+            - defense score
+    - visual effects
+- Castling

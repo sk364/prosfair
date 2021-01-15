@@ -11,7 +11,7 @@ struct move_structure{
 	int y;
 };
 
-typedef struct move_structure move;
+typedef struct move_structure move_piece;
 long long int call_count;
 #define llu long long unsigned int
 #define KING    0
@@ -89,7 +89,7 @@ inline float piece_priority(int piece)
 }
 
 
-move alpha_beta(vector<llu> &, int,int );
+move_piece alpha_beta(vector<llu> &, int,int );
 float alpha_beta_min(vector<llu> & , int,float,float  ,int);
 float alpha_beta_max(vector<llu> & , int,float,float ,int);
 
@@ -111,9 +111,9 @@ llu pawn_moves_wrapper(vector<llu> &,int);
 llu return_llu();
 llu return_one();
 inline llu hasher(vector<llu> &);
-vector<move> get_all_moves(vector<llu> &,int);
-vector<llu> generate_board(vector<llu> &,move);
-// taking the move vector as 16 element vector, which have bits on' wherever a chance of move is there from current move
+vector<move_piece> get_all_moves(vector<llu> &,int);
+vector<llu> generate_board(vector<llu> &,move_piece);
+// taking the move_piece vector as 16 element vector, which have bits on' wherever a chance of move_piece is there from current move_piece
 // true 
 // army should be the position of the king
 
@@ -157,7 +157,7 @@ bool in_checkmate(vector<llu> & board, int king)
 {
 	if ( !in_check(board,king)) return false;
 
-	vector<move> moves = get_all_moves(board,king);
+	vector<move_piece> moves = get_all_moves(board,king);
 
 	for(int i =0 ; i< moves.size(); i++)
 	{
@@ -198,7 +198,7 @@ llu return_one()
 // I am only considering 8X8 board, and I won't write any fucntion only going to use llu as data type
 // furthermore I have not considered any rule of chess now. Just the movements I am defining for different pieces
 // evey llu passwd to the moves_something function represetns the position of one piece only and
-// in return it gets 1-bit on wherever the piece can move 
+// in return it gets 1-bit on wherever the piece can move_piece 
 
 int find_pos(llu x)
 {
@@ -544,7 +544,7 @@ void print_vec_bitboard(vector<llu> v)
 }
 
 
-void print_move_vector(vector< move> v )
+void print_move_vector(vector< move_piece> v )
 {
 	for(int i =0; i< v.size(); i++)
 		cout << v[i].piece << " " <<v[i].x << " "<< v[i].y << " , ";
@@ -552,14 +552,14 @@ void print_move_vector(vector< move> v )
 }
 
 
-vector<move> get_move_vector(llu b,int piece)
+vector<move_piece> get_move_vector(llu b,int piece)
 {
-	vector< move> v;
+	vector< move_piece> v;
 
 	for(int y=0; y <8; y++)
 		for(int x=0; x<8; x++)
 			if( ( b >> ( 8*y+x)) & 1 )
-				v.push_back((move){piece,x,y});
+				v.push_back((move_piece){piece,x,y});
 
 
 	return v;
@@ -568,15 +568,15 @@ vector<move> get_move_vector(llu b,int piece)
 }
 
 
-vector<move> get_all_moves(vector<llu> & board , int army_king)
+vector<move_piece> get_all_moves(vector<llu> & board , int army_king)
 {
-	vector<move> ret_v;
+	vector<move_piece> ret_v;
 
 	
 	vector<llu>  moves_bit = find_moves(board,army_king);
 
 	for(int i=0; i<16; i++) {
-		vector<move> moves_list =  get_move_vector(moves_bit[i],i+army_king);
+		vector<move_piece> moves_list =  get_move_vector(moves_bit[i],i+army_king);
 		ret_v.insert(ret_v.end(), moves_list.begin(), moves_list.end() );
 	}
 
@@ -591,7 +591,7 @@ vector<move> get_all_moves(vector<llu> & board , int army_king)
 
 
 
-vector<llu> generate_board(vector<llu> & board,move m ){
+vector<llu> generate_board(vector<llu> & board,move_piece m ){
 
 	vector<llu> new_board(board);
 
@@ -610,18 +610,18 @@ vector<llu> generate_board(vector<llu> & board,move m ){
 	
 
 	
-move minimax(vector<llu> board,int army_king,int depth)
+move_piece minimax(vector<llu> board,int army_king,int depth)
 {
 	
-	vector<move> moves_list = get_all_moves(board,army_king);
+	vector<move_piece> moves_list = get_all_moves(board,army_king);
 	
 	//TODO take care of this -1,0,0 return value
 	if( moves_list.size() == 0 or depth == 0){
 	//	cout << "minimax, no moves to play"<<endl;
-		return  (move){-1,0,0};
+		return  (move_piece){-1,0,0};
 	}
 
-	move best_move = moves_list[0];
+	move_piece best_move = moves_list[0];
 	float best_score = -99999;
 
 	for(int i=0; i< moves_list.size(); i++){
@@ -662,29 +662,15 @@ float evaluate_board(vector<llu> & board,int army_king)
 	else{ 
 	
 
-	if ( in_checkmate(board,army_king) or in_check(board,army_king) ) { return evaluate_board_memo[board_hash] =(float)-99999;}
-	if ( in_checkmate(board,army_king<OKING?OKING:KING) or in_check(board,army_king<OKING?OKING:KING)) { return evaluate_board_memo[board_hash] =(float)99999;}
+		if ( in_checkmate(board,army_king) or in_check(board,army_king) ) { return evaluate_board_memo[board_hash] =(float)-99999;}
+		if ( in_checkmate(board,army_king<OKING?OKING:KING) or in_check(board,army_king<OKING?OKING:KING)) { return evaluate_board_memo[board_hash] =(float)99999;}
 
-		
-	
-	float sum = 0.0;
+		float sum = 0.0;
 
-	for(int i =KING; i<OKING; i++)
-		sum += (  (board[i]!=return_llu()) - (board[i+OKING]!=return_llu()) ) *piece_priority(i);
+		for(int i =KING; i<OKING; i++)
+			sum += (  (board[i]!=return_llu()) - (board[i+OKING]!=return_llu()) ) *piece_priority(i);
 
-	
-
-	if( army_king == KING)
-	{
-		
 		return evaluate_board_memo[board_hash] = sum;
-	}
-	else
-	{
-	
-		return evaluate_board_memo[board_hash] = sum;
-	}
-
 	}
 
 }
@@ -703,7 +689,7 @@ float min_play(vector<llu> board,int army_king,int depth)
 	if( min_play_memo.find(board_hash) != min_play_memo.end() )
 		return min_play_memo[board_hash];
 	else {
-	vector<move> moves_list = get_all_moves(board,army_king);
+	vector<move_piece> moves_list = get_all_moves(board,army_king);
 
 	if( moves_list.size() == 0 ) return evaluate_board(board,army_king);
 
@@ -734,7 +720,7 @@ float max_play(vector<llu> board,int army_king,int depth)
 	if( max_play_memo.find(board_hash) != max_play_memo.end() )
 		return max_play_memo[board_hash];
 	else {
-	vector<move> moves_list = get_all_moves(board,army_king);
+	vector<move_piece> moves_list = get_all_moves(board,army_king);
 
 	if( moves_list.size() == 0 ) return evaluate_board(board,army_king);
 
@@ -793,27 +779,27 @@ inline llu hash_pair(llu a,llu b)
 }
 
 
-move alpha_beta(vector<llu> & board,int army_king,int depth)
+move_piece alpha_beta(vector<llu> & board,int army_king,int depth)
 {
-	if( depth <=0 or game_over(board) )	return (move){-1,0,0};
+	if( depth <=0 or game_over(board) )	return (move_piece){-1,0,0};
 
-	vector<move> moves_list = get_all_moves(board,army_king);
+	vector<move_piece> moves_list = get_all_moves(board,army_king);
 
-	if( moves_list.size() == 0 ) return (move){-1,0,0};
+	if( moves_list.size() == 0 ) return (move_piece){-1,0,0};
 
 
 	float best_score = -99999;
 
 	float alpha =-99999, beta = 99999;
-	move best_move = moves_list[0];
+	move_piece best_move = moves_list[0];
 	
 
 
 	for(int i=0; i<moves_list.size(); i++){
 		vector<llu> clone_board = generate_board(board,moves_list[i] );
-		float score = alpha_beta_min(clone_board,army_king<OKING?OKING:KING, alpha,beta,depth-1);
+		float score = alpha_beta_min(clone_board,army_king<OKING?OKING:KING, alpha,beta,depth);
 
-		if(score < best_score ){
+		if(score > best_score ){
 			best_move = moves_list[i];
 			best_score = score;
 		}
@@ -831,7 +817,7 @@ float alpha_beta_min(vector<llu> & board,int army_king, float alpha, float beta,
 	if( min_play_memo.find(board_hash) != min_play_memo.end() )
 		return min_play_memo[board_hash];
 	else {
-	vector<move> moves_list = get_all_moves(board,army_king);
+	vector<move_piece> moves_list = get_all_moves(board,army_king);
 
 	if( moves_list.size() == 0 ) return evaluate_board(board,army_king);
 
@@ -869,7 +855,7 @@ float alpha_beta_max(vector<llu> & board,int army_king, float alpha, float beta,
 	if( min_play_memo.find(board_hash) != min_play_memo.end() )
 		return min_play_memo[board_hash];
 	else {
-	vector<move> moves_list = get_all_moves(board,army_king);
+	vector<move_piece> moves_list = get_all_moves(board,army_king);
 
 	if( moves_list.size() == 0 ) return evaluate_board(board,army_king);
 
@@ -925,7 +911,7 @@ int main(int argc,char *argv[])
 	//pretty_print_board(bb);	
 
 
-	move ans = alpha_beta(bb,army_king,depth);
+	move_piece ans = alpha_beta(bb,army_king,depth);
 	
 	cout << ans.piece << " " << ans.x <<" "<< ans.y << endl;
 
