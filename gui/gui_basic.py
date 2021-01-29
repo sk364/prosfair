@@ -87,12 +87,13 @@ def draw_chessboard(board, moves = None):
 
 def play_cpu_move(board, color, current_board_idx):
   global chessboards
-  cpu_move = alpha_beta_pruning.alpha_beta_pruning(board, OPPOSITE[color], DEPTH)
+  cpu_move = alpha_beta_pruning.alpha_beta_pruning_native(board, OPPOSITE[color], DEPTH)
 
   chessboards[current_board_idx] = helper.generate_board(board, cpu_move)
   board = chessboards[current_board_idx]
 
   draw_chessboard(board)
+  return board
 
 
 def play_move(board, color, old_pos, current_board_idx):
@@ -137,9 +138,10 @@ def play_move(board, color, old_pos, current_board_idx):
 
         draw_chessboard(board)
 
-        play_cpu_move(board, color, current_board_idx)
-           
-        break #Break here is necessary since we are deleting a key from the map on which we are iterating
+        print("Calculating...")
+        return play_cpu_move(board, color, current_board_idx)
+  return board
+
 
 def looping_cpu_vs_human(board):
   draw_chessboard(board)
@@ -172,36 +174,23 @@ def looping_cpu_vs_human(board):
 
         #updating the screen with the next or prev chessboard
         draw_chessboard(board)
-      if event.type == pygame.MOUSEBUTTONDOWN and flag == 0:
+      if event.type == pygame.MOUSEBUTTONDOWN:
         x, y = pygame.mouse.get_pos()
         old_x, old_y = get_chess_square(x, y)
         moves = []
+
         for army in board.keys():
           for piece in board[army].keys():
             if board[army][piece][1] == old_x and board[army][piece][0] == old_y:
-              if "bishop" in piece:
-                moves = rules.legal_bishop_moves(board, army, piece)
-              elif "pawn" in piece:
-                moves = rules.legal_pawn_moves(board, army, piece)
-              elif "knight" in piece:
-                moves = rules.legal_knight_moves(board, army, piece)
-              elif "rook" in piece:
-                moves = rules.legal_rook_moves(board, army, piece)
-              elif "queen" in piece:
-                moves = rules.legal_queen_moves(board, army, piece)
-              elif "king" in piece:
-                moves = rules.legal_king_moves(board, army, piece)
+              moves = [move['new_position'] for move in helper.get_moves(board, color, piece)]
 
           draw_chessboard(board, moves)
       if event.type == pygame.MOUSEBUTTONUP:
         x, y = pygame.mouse.get_pos()
         new_x, new_y = get_chess_square(x, y)
-        
-        if new_x == old_x and new_y == old_y:
-          flag = 1
-          continue
-        else:
-          play_move(board, color, (old_x, old_y), cur)
+
+        if new_x != old_x or new_y != old_y:
+          board = play_move(board, color, (old_x, old_y), cur)
 
 def looping_cpu_vs_cpu(board):
   global chessboards
