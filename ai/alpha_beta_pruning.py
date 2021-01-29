@@ -1,4 +1,5 @@
 import subprocess
+import time
 
 from ai.cpu import evaluate_board
 from common.constants import OPPOSITE
@@ -20,7 +21,6 @@ def alpha_beta_pruning(board, color, depth):
 
   proc = subprocess.Popen(["ai/minimax", str(player), str(depth) ],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
 
-  import time
   st = time.time()
   out = proc.communicate(data.encode("utf-8"))
   total = time.time() - st
@@ -43,7 +43,8 @@ def alpha_beta_pruning(board, color, depth):
 def alpha_beta_pruning_native(board,color,depth):
   if depth == 0:
     return evaluate_board(board, color)
-      
+
+  st = time.time()
   moves_list = helper.get_moves(board, color)
 
   if len(moves_list) == 0:
@@ -62,6 +63,8 @@ def alpha_beta_pruning_native(board,color,depth):
       best_move = move
       best_score = score
 
+  total = time.time() - st
+  print(total)
   print(best_move)
 
   return best_move
