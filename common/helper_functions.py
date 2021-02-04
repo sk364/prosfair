@@ -76,8 +76,8 @@ def generate_board(board, move):
   new_board = copy.deepcopy(board)
 
   killed_piece = None
-  for k,v in new_board[OPPOSITE[move['color']]].items(): 
-    if move['new_position'] == v:
+  for k, v in new_board[OPPOSITE[move['color']]].items():
+    if move['new_position'] == v and k != "king":
       killed_piece = k
 
   if killed_piece and killed_piece in new_board[OPPOSITE[move['color']]].keys():
