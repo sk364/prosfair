@@ -11,7 +11,7 @@ def legal_king_moves(board, color, king='king'):
   king_moves = []
   for i in range(3):
     for j in range(3):
-      if  9 > x + i - 1 > 0 and 9 > y + j- 1 >0:
+      if  8 > x + i - 1 > -1 and 8 > y + j- 1 > -1:
         if x + i- 1 != x or y + j- 1 != y:
           king_moves  = king_moves +  [[x + i- 1, y + j- 1]] 
 
@@ -26,37 +26,37 @@ def legal_pawn_moves(board, color, pawn):
 
   pawn_moves = []
   if color == "black":
-    if x == 2:
-      if 9 > y > 0:
+    if x == 1:
+      if 8 > y > -1:
         if [x + 2, y] not in board[OPPOSITE[color]].values():
           pawn_moves = pawn_moves + [[x + 2, y]]
-    if x < 8:
-      if 9 > y > 0:
+    if x < 7:
+      if 8 > y > -1:
         if [x + 1, y] not in board[OPPOSITE[color]].values():
           pawn_moves = pawn_moves + [[x + 1, y]]
-      if y > 1:
+      if y > 0:
         if [x + 1, y - 1] in board[OPPOSITE[color]].values():
           pawn_moves = pawn_moves + [[x + 1, y - 1]]
-      if y < 8:
+      if y < 7:
         if [x + 1, y + 1] in board[OPPOSITE[color]].values():
           pawn_moves = pawn_moves + [[x + 1, y + 1]]
   else:
-    if x == 7:
-      if 9 > y > 0:
+    if x == 6:
+      if 8 > y > -1:
         if [x - 2, y] not in board[OPPOSITE[color]].values():
           pawn_moves = pawn_moves + [[x - 2, y]]
-    if x > 1:
-      if 9 > y > 0:
+    if x > 0:
+      if 8 > y > -1:
         if [x - 1, y] not in board[OPPOSITE[color]].values():
           pawn_moves = pawn_moves + [[x - 1, y]]
-      if y > 1:
+      if y > 0:
         if [x - 1, y - 1] in board[OPPOSITE[color]].values():
           pawn_moves = pawn_moves + [[x - 1, y - 1]]
-      if y < 8:
+      if y < 7:
         if [x - 1, y + 1] in board[OPPOSITE[color]].values():
           pawn_moves = pawn_moves + [[x - 1, y + 1]]
 
-  return[x for x in pawn_moves if x not in board[color].values()]
+  return [x for x in pawn_moves if x not in board[color].values()]
 
 
 def legal_bishop_moves(board,color,bishop):
@@ -67,15 +67,15 @@ def legal_bishop_moves(board,color,bishop):
 
   bishop_moves = []
   for i in range(8):
-    if x - i - 1>0 and y + i + 1<9:
+    if x - i - 1 > -1 and y + i + 1 < 8:
       if [x - i - 1, y + i + 1] in board[color].values():
         break
       bishop_moves = bishop_moves + [[x - i - 1, y + i + 1]]
-      if [x - i - 1,y + i + 1] in board[OPPOSITE[color]].values():
+      if [x - i - 1, y + i + 1] in board[OPPOSITE[color]].values():
         break
 
   for i in range(8):
-    if x - i - 1 > 0 and y - i - 1 > 0:
+    if x - i - 1 > -1 and y - i - 1 > -1:
       if [x - i - 1, y - i - 1] in board[color].values():
         break
       bishop_moves = bishop_moves + [[x - i - 1, y - i - 1]]
@@ -83,7 +83,7 @@ def legal_bishop_moves(board,color,bishop):
         break
 
   for i in range(8):
-    if x + i + 1 < 9 and y - i - 1 > 0:
+    if x + i + 1 < 8 and y - i - 1 > -1:
       if [x + i + 1, y - i - 1] in board[color].values():
         break
       bishop_moves = bishop_moves + [[x + i + 1, y - i - 1]]
@@ -91,7 +91,7 @@ def legal_bishop_moves(board,color,bishop):
         break
 
   for i in range(8):
-    if x + i + 1 < 9 and y + i + 1 < 9:
+    if x + i + 1 < 8 and y + i + 1 < 8:
       if [x + i + 1, y + i + 1] in board[color].values():
         break
       bishop_moves = bishop_moves + [[x + i + 1, y + i + 1]]
@@ -107,28 +107,28 @@ def legal_knight_moves(board, color, knight):
 
   x, y = board[color][knight]
   knight_moves = []
-  if x + 2 < 9 and y + 1 < 9:
+  if x + 2 < 8 and y + 1 < 8:
     knight_moves = knight_moves + [[x + 2, y + 1]]
 
-  if x + 1 < 9 and y + 2 < 9:
+  if x + 1 < 8 and y + 2 < 8:
     knight_moves = knight_moves + [[x + 1, y + 2]]
 
-  if x - 1 > 0 and y + 2 < 9:
+  if x - 1 > -1 and y + 2 < 8:
     knight_moves = knight_moves + [[x - 1, y + 2]]
   
-  if x - 1 > 0 and y - 2 > 0:
+  if x - 1 > -1 and y - 2 > -1:
     knight_moves = knight_moves + [[x - 1, y - 2]]
 
-  if x + 2 < 9 and y - 1 > 0:
+  if x + 2 < 8 and y - 1 > -1:
     knight_moves = knight_moves + [[x + 2, y - 1]]
 
-  if x + 1 < 9 and y - 2 > 0:
+  if x + 1 < 8 and y - 2 > -1:
     knight_moves = knight_moves + [[x + 1, y - 2]]
 
-  if x - 2 > 0 and y - 1 > 0:
+  if x - 2 > -1 and y - 1 > -1:
     knight_moves = knight_moves + [[x - 2, y - 1]]
 
-  if x - 2 > 0 and y + 1 < 9:
+  if x - 2 > -1 and y + 1 < 8:
     knight_moves = knight_moves + [[x - 2, y + 1]]   
 
   return [x for x in knight_moves if x not in board[color].values()]
@@ -142,7 +142,7 @@ def legal_rook_moves(board,color,rook):
 
   rook_moves = []
   for i in range(8):
-    if x + i + 1 < 9:
+    if x + i + 1 < 8:
       if [x + i + 1, y] in board[color].values():
         break
       rook_moves = rook_moves + [[x + i + 1, y]]
@@ -150,7 +150,7 @@ def legal_rook_moves(board,color,rook):
         break
 
   for i in range(8):
-    if x - i - 1 > 0:
+    if x - i - 1 > -1:
       if [x - i - 1, y] in board[color].values():
         break
       rook_moves = rook_moves + [[x - i - 1,y]]
@@ -158,7 +158,7 @@ def legal_rook_moves(board,color,rook):
         break
 
   for i in range(8):
-    if y + i + 1 < 9:
+    if y + i + 1 < 8:
       if [x,y + i + 1] in board[color].values():
         break
       rook_moves = rook_moves + [[x, y + i + 1]]
@@ -166,7 +166,7 @@ def legal_rook_moves(board,color,rook):
         break
 
   for i in range(8):
-    if y - i - 1 > 0:
+    if y - i - 1 > -1:
       if [x, y - i - 1] in board[color].values():
         break
       rook_moves = rook_moves + [[x, y - i - 1]]

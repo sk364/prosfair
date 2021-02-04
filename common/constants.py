@@ -1,6 +1,6 @@
 import json
 
-DEPTH = 3
+DEPTH = 4
 PIECE_VALUE = json.load(open("common/chess_piece_priority.json"))
 
 OPPOSITE = { "white" : "black" , "black" : "white" }

@@ -24,20 +24,23 @@ chessboard2 = json.load(open("./common/initial_state.json"))
 chessboard3 = json.load(open("./common/initial_state.json"))
 
 #created 3 chessboards for now
-chessboards = [chessboard1, chessboard2, chessboard3]
-chessboard = chessboards[0]   #current board set to the first.
+CHESSBOARDS = [chessboard1, chessboard2, chessboard3]
+chessboard = CHESSBOARDS[0]   #current board set to the first.
 
 pygame.init()
 screen = pygame.display.set_mode((SIZE, SIZE))
 
 def get_chess_square(x, y):
-  return [ x // (SIZE // 8) + 1, y // (SIZE // 8) + 1 ]
+  return [ x // (SIZE // 8), y // (SIZE // 8) ]
+
 
 def get_chess_square_reverse(a, b):
-  return ((a - 1) * SIZE // 8, (b - 1) * SIZE // 8)  
+  return (a * SIZE // 8, b * SIZE // 8)  
+
 
 def get_chess_square_border(r, s):
-  return ((r - 1) * SIZE // 8 + 2, (s - 1) * SIZE // 8 + 2)
+  return (r * SIZE // 8 + 2, s * SIZE // 8 + 2)
+
   
 def draw_chessboard(board, moves = None):
   screen.fill(WHITE)
@@ -58,45 +61,46 @@ def draw_chessboard(board, moves = None):
       img = pygame.image.load(IMAGE_DIR + army + "_" + re.findall('[a-z]+', piece)[0] + '.png')
       screen.blit(
         img, (
-          board[army][piece][1] * SIZE // 8 - SIZE // 8 + SIZE // 80,
-          board[army][piece][0] * SIZE // 8 - SIZE // 8 + SIZE // 80
+          board[army][piece][1] * SIZE // 8 + SIZE // 80,
+          board[army][piece][0] * SIZE // 8 + SIZE // 80
         )
       )
 
-  # if any piece is selected and has some legal moves then display blue squares on corresponding valid move block
+  # if any piece is selected and has some legal moves then display blue squares on corresponding
+  # valid move block
   if moves is not None:
     for move in moves:
-      pygame.draw.rect(screen, BLUE, (get_chess_square_reverse(move[1], move[0]), (SIZE // 8, SIZE // 8)))
+      pygame.draw.rect(
+        screen, BLUE, (get_chess_square_reverse(move[1], move[0]), (SIZE // 8, SIZE // 8)))
 
       color = WHITE if (move[1] + move[0]) % 2 != 0 else GRAY
-      pygame.draw.rect(screen, color, (get_chess_square_border(move[1], move[0]), (SIZE // 8 - 4, SIZE // 8 - 4)))
+      pygame.draw.rect(
+        screen, color, (get_chess_square_border(move[1], move[0]), (SIZE // 8 - 4, SIZE // 8 - 4)))
 
       for army in board.keys():
         for piece in board[army].keys():
           if board[army][piece][1] == move[1] and board[army][piece][0] == move[0]:
-            img = pygame.image.load(IMAGE_DIR + army + "_" + re.findall('[a-z]+', piece)[0] + '.png')
+            img = pygame.image.load(
+              IMAGE_DIR + army + "_" + re.findall('[a-z]+', piece)[0] + '.png')
             screen.blit(
               img, (
-                board[army][piece][1] * SIZE // 8 - SIZE // 8 + SIZE // 80,
-                board[army][piece][0] * SIZE // 8 - SIZE // 8 + SIZE // 80
+                board[army][piece][1] * SIZE // 8 + SIZE // 80,
+                board[army][piece][0] * SIZE // 8 + SIZE // 80
               )
             )
 
   pygame.display.update()
 
 
-def play_cpu_move(board, color, current_board_idx):
-  global chessboards
+def play_cpu_move(chessboards, board, color, current_board_idx):
   cpu_move = alpha_beta_pruning.alpha_beta_pruning_native(board, OPPOSITE[color], DEPTH)
-
   chessboards[current_board_idx] = helper.generate_board(board, cpu_move)
-  board = chessboards[current_board_idx]
+  draw_chessboard(chessboards[current_board_idx])
 
-  draw_chessboard(board)
-  return board
+  return chessboards[current_board_idx]
 
 
-def play_move(board, color, old_pos, current_board_idx):
+def play_move(chessboards, board, color, old_pos, current_board_idx):
   old_x, old_y = old_pos
   x, y = pygame.mouse.get_pos()
   new_x, new_y = get_chess_square(x, y)
@@ -105,41 +109,25 @@ def play_move(board, color, old_pos, current_board_idx):
   for army in board.keys():
     for piece in board[army].keys():
       if board[army][piece][1] == old_x and board[army][piece][0] == old_y:
-        if "bishop" in piece:
-          if [new_y, new_x] in rules.legal_bishop_moves(board, army, piece):
-            valid = True
-        elif "pawn" in piece:
-          if [new_y, new_x] in rules.legal_pawn_moves(board, army, piece):
-            valid = True
-        elif "knight" in piece:
-          if [new_y, new_x] in rules.legal_knight_moves(board, army, piece):
-            valid = True
-        elif "rook" in piece:
-          if [new_y, new_x] in rules.legal_rook_moves(board, army, piece):
-            valid = True
-        elif "queen" in piece:
-          if [new_y, new_x] in rules.legal_queen_moves(board, army, piece):
-            valid = True
-        elif "king" in piece:
-          if [new_y, new_x] in rules.legal_king_moves(board, army, piece):
-            valid = True
+        moves = helper.get_moves(board, army, filter_piece=piece)
+        if [new_y, new_x] in [move['new_position'] for move in moves]:
+          valid = True
 
-      #if piece is moved to valid position then update the piece's coordinates and check if it is killing other piece
       if valid and army == color:
         board[army][piece][1] = new_x
         board[army][piece][0] = new_y
-        killed_piece = None
+
         for piece, pos in board[OPPOSITE[army]].items():
-          if pos[0] == new_y and pos[1] == new_x:
-            killed_piece = piece
-          if killed_piece and killed_piece in board[OPPOSITE[army]].keys():
-            del board[OPPOSITE[army]][killed_piece]
+          if pos[0] == new_y and pos[1] == new_x and piece != "king":
+            del board[OPPOSITE[army]][piece]
             break
 
         draw_chessboard(board)
 
+        # TODO: check for game over here
+
         print("Calculating...")
-        return play_cpu_move(board, color, current_board_idx)
+        return play_cpu_move(chessboards, board, color, current_board_idx)
   return board
 
 
@@ -152,8 +140,7 @@ def looping_cpu_vs_human(board):
   new_x = 0
   new_y = 0
   color = "white"
-  
-  flag = 0
+  chessboards = [dict(chessboard) for chessboard in CHESSBOARDS]
 
   while True:
     for event in pygame.event.get():
@@ -190,15 +177,15 @@ def looping_cpu_vs_human(board):
         new_x, new_y = get_chess_square(x, y)
 
         if new_x != old_x or new_y != old_y:
-          board = play_move(board, color, (old_x, old_y), cur)
+          board = play_move(chessboards, board, color, (old_x, old_y), cur)
+
 
 def looping_cpu_vs_cpu(board):
-  global chessboards
-
   draw_chessboard(board)
 
   color = "white"
   cur = 0
+  chessboards = [dict(chessboard) for chessboard in CHESSBOARDS]
 
   while True:
     for event in pygame.event.get():
@@ -217,14 +204,10 @@ def looping_cpu_vs_cpu(board):
 
         draw_chessboard(board)
 
-    move = alpha_beta_pruning.alpha_beta_pruning_native(board, color, DEPTH)
+    board = play_cpu_move(chessboards, board, color, cur)
 
-    chessboards[cur] = helper.generate_board(board, move)
-    board = chessboards[cur]
-
+    # TODO: check for game over here
     color = OPPOSITE[color]
-
-    draw_chessboard(board)
 
 # def looping_human_vs_human(board):
 #   global chessboards
