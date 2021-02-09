@@ -1,11 +1,15 @@
-- To fix
-    - checkmate condition
-    - CPU
-        - evaluation
-            - piece value
-            - piece position
-            - checkmate
-            - attack score
-            - defense score
-    - visual effects
+- CPU
+    - evaluation
+        - piece value - D
+        - piece position - D
+        - checkmate
+        - attack score
+        - defense score
+- UI/UX
 - Castling
+- En passant
+- Resign
+- Clock
+- Fallen pieces
+- Show piece value score
+- 
