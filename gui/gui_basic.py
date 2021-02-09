@@ -1,10 +1,11 @@
 import copy
 import json
-import re 
+import re
 import sys
 
 import pygame
 
+from random import random
 from pygame.locals import *
 from common.constants import (
   OPPOSITE,
@@ -41,19 +42,30 @@ def get_chess_square_reverse(a, b):
 def get_chess_square_border(r, s):
   return (r * SIZE // 8 + 2, s * SIZE // 8 + 2)
 
+
+def flip_board(board):
+  temp = dict(board["white"])
+  board["white"] = dict(board["black"])
+  board["black"] = temp
+
+  return dict(board)
+
   
-def draw_chessboard(board, moves = None):
+def draw_chessboard(board, moves = None, isUserWhite = True):
   screen.fill(WHITE)
 
   # draw chess blocks
   startX = 0
   startY = 0
   for idx in range(0, 8):
-    startX = 0 if idx % 2 == 0 else SIZE // 8
+    if isUserWhite:
+      startX = 0 if idx % 2 != 0 else SIZE // 8
+    else:
+      startX = SIZE // 8 if idx % 2 != 0 else 0
     for __ in range(0, 8):
       pygame.draw.rect(screen, GRAY, ((startX, startY), (SIZE // 8, SIZE // 8)))
       startX += 2 * SIZE // 8
-    startY += SIZE // 8 
+    startY += SIZE // 8
 
   # place the correspoding images of the pieces on the blocks
   for army in board.keys():
@@ -73,7 +85,10 @@ def draw_chessboard(board, moves = None):
       pygame.draw.rect(
         screen, BLUE, (get_chess_square_reverse(move[1], move[0]), (SIZE // 8, SIZE // 8)))
 
-      color = WHITE if (move[1] + move[0]) % 2 != 0 else GRAY
+      if not isUserWhite:
+        color = WHITE if (move[1] + move[0]) % 2 != 0 else GRAY
+      else:
+        color = GRAY if (move[1] + move[0]) % 2 != 0 else WHITE
       pygame.draw.rect(
         screen, color, (get_chess_square_border(move[1], move[0]), (SIZE // 8 - 4, SIZE // 8 - 4)))
 
@@ -92,15 +107,16 @@ def draw_chessboard(board, moves = None):
   pygame.display.update()
 
 
-def play_cpu_move(chessboards, board, color, current_board_idx):
-  cpu_move = alpha_beta_pruning.alpha_beta_pruning_native(board, OPPOSITE[color], DEPTH)
+def play_cpu_move(chessboards, board, color, current_board_idx, isUserWhite):
+  cpu_move = alpha_beta_pruning.alpha_beta_pruning_native(
+    board, OPPOSITE[color], DEPTH, isUserWhite)
   chessboards[current_board_idx] = helper.generate_board(board, cpu_move)
-  draw_chessboard(chessboards[current_board_idx])
+  draw_chessboard(chessboards[current_board_idx], moves=None, isUserWhite=isUserWhite)
 
   return chessboards[current_board_idx]
 
 
-def play_move(chessboards, board, color, old_pos, current_board_idx):
+def play_move(chessboards, board, color, old_pos, current_board_idx, isUserWhite):
   old_x, old_y = old_pos
   x, y = pygame.mouse.get_pos()
   new_x, new_y = get_chess_square(x, y)
@@ -109,7 +125,7 @@ def play_move(chessboards, board, color, old_pos, current_board_idx):
   for army in board.keys():
     for piece in board[army].keys():
       if board[army][piece][1] == old_x and board[army][piece][0] == old_y:
-        moves = helper.get_moves(board, army, filter_piece=piece)
+        moves = helper.get_moves(board, army, filter_piece=piece, isUserWhite=isUserWhite)
         if [new_y, new_x] in [move['new_position'] for move in moves]:
           valid = True
 
@@ -122,25 +138,32 @@ def play_move(chessboards, board, color, old_pos, current_board_idx):
             del board[OPPOSITE[army]][piece]
             break
 
-        draw_chessboard(board)
+        draw_chessboard(board, moves=None, isUserWhite=isUserWhite)
 
         # TODO: check for game over here
 
         print("Calculating...")
-        return play_cpu_move(chessboards, board, color, current_board_idx)
+        return play_cpu_move(chessboards, board, color, current_board_idx, isUserWhite)
   return board
 
 
 def looping_cpu_vs_human(board):
-  draw_chessboard(board)
-
   cur = 0
   old_x = 0
   old_y = 0
   new_x = 0
   new_y = 0
-  color = "white"
+  color = "white" if round(random() * 100) <= 50 else "black"
   chessboards = [dict(chessboard) for chessboard in CHESSBOARDS]
+  isUserWhite = color == "white"
+
+  if not isUserWhite:
+    board = flip_board(board)
+
+  draw_chessboard(board, moves=None, isUserWhite=isUserWhite)
+
+  if not isUserWhite:
+    board = play_cpu_move(chessboards, board, color, cur, isUserWhite)
 
   while True:
     for event in pygame.event.get():
@@ -160,7 +183,7 @@ def looping_cpu_vs_human(board):
           board = chessboards[cur]
 
         #updating the screen with the next or prev chessboard
-        draw_chessboard(board)
+        draw_chessboard(board, moves=None, isUserWhite=isUserWhite)
       if event.type == pygame.MOUSEBUTTONDOWN:
         x, y = pygame.mouse.get_pos()
         old_x, old_y = get_chess_square(x, y)
@@ -169,15 +192,19 @@ def looping_cpu_vs_human(board):
         for army in board.keys():
           for piece in board[army].keys():
             if board[army][piece][1] == old_x and board[army][piece][0] == old_y:
-              moves = [move['new_position'] for move in helper.get_moves(board, color, piece)]
+              moves = [
+                move['new_position']
+                for move in helper.get_moves(
+                  board, color, filter_piece=piece, isUserWhite=isUserWhite)
+              ]
 
-          draw_chessboard(board, moves)
+          draw_chessboard(board, moves=moves, isUserWhite=isUserWhite)
       if event.type == pygame.MOUSEBUTTONUP:
         x, y = pygame.mouse.get_pos()
         new_x, new_y = get_chess_square(x, y)
 
         if new_x != old_x or new_y != old_y:
-          board = play_move(chessboards, board, color, (old_x, old_y), cur)
+          board = play_move(chessboards, board, color, (old_x, old_y), cur, isUserWhite)
 
 
 def looping_cpu_vs_cpu(board):
