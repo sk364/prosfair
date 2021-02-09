@@ -11,7 +11,7 @@ def game_over(board, color):
   return False
 
 
-def get_moves(board, color, filter_piece = None):
+def get_moves(board, color, filter_piece = None, isUserWhite = True):
   moves_list  = []
   moves = []
 
@@ -27,7 +27,7 @@ def get_moves(board, color, filter_piece = None):
     elif "rook" in piece:
       moves = rules.legal_rook_moves(board, color, piece)
     elif "pawn" in piece:
-      moves = rules.legal_pawn_moves(board, color, piece)
+      moves = rules.legal_pawn_moves(board, color, piece, isUserWhite=isUserWhite)
     
     for move in moves:
       moves_list = moves_list + [{"color": color, "piece": piece, "new_position": move}]

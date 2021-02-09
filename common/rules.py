@@ -18,14 +18,14 @@ def legal_king_moves(board, color, king='king'):
   return [ x for x in king_moves if x not in board[color].values() ]
 
 
-def legal_pawn_moves(board, color, pawn):
+def legal_pawn_moves(board, color, pawn, isUserWhite = True):
   if pawn not in board[color].keys():
     return []
 
   x, y = board[color][pawn]
 
   pawn_moves = []
-  if color == "black":
+  if (isUserWhite and color == "black") or (not isUserWhite and color == "white"):
     if x == 1:
       if 8 > y > -1:
         if [x + 2, y] not in board[OPPOSITE[color]].values():
@@ -40,7 +40,7 @@ def legal_pawn_moves(board, color, pawn):
       if y < 7:
         if [x + 1, y + 1] in board[OPPOSITE[color]].values():
           pawn_moves = pawn_moves + [[x + 1, y + 1]]
-  else:
+  elif (isUserWhite and color == "white") or (not isUserWhite and color == "black"):
     if x == 6:
       if 8 > y > -1:
         if [x - 2, y] not in board[OPPOSITE[color]].values():
