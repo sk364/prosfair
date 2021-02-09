@@ -40,12 +40,12 @@ def alpha_beta_pruning(board, color, depth):
   }
 
 
-def alpha_beta_pruning_native(board, color, depth):
+def alpha_beta_pruning_native(board, color, depth, isUserWhite):
   if depth == 0:
-    return evaluate_board(board, color)
+    return evaluate_board(board, isUserWhite)
 
   st = time.time()
-  moves_list = helper.get_moves(board, color)
+  moves_list = helper.get_moves(board, color, filter_piece=None, isUserWhite=isUserWhite)
 
   if len(moves_list) == 0:
     return None
@@ -58,7 +58,7 @@ def alpha_beta_pruning_native(board, color, depth):
 
   for move in moves_list:
     clone_board = helper.generate_board(board, move)
-    score = alpha_beta(clone_board, OPPOSITE[color], alpha, beta, depth - 1, True)
+    score = alpha_beta(clone_board, OPPOSITE[color], alpha, beta, depth - 1, isUserWhite, True)
     if score > best_score:
       best_move = move
       best_score = score
@@ -70,22 +70,24 @@ def alpha_beta_pruning_native(board, color, depth):
   return best_move
 
 
-def alpha_beta(board, color, alpha, beta, depth, isMin = False):
+def alpha_beta(board, color, alpha, beta, depth, isUserWhite, isMin = False):
   if depth == 0 or helper.game_over(board, color):
-    return evaluate_board(board, color)
+    return evaluate_board(board, isUserWhite)
 
-  moves_list = helper.get_moves(board, color)
+  moves_list = helper.get_moves(board, color, filter_piece=None, isUserWhite=isUserWhite)
 
   score = float('inf') if isMin else float('-inf')
   for move in moves_list:
     clone_board = helper.generate_board(board, move)
     if not isMin:
-      score = max(score, alpha_beta(clone_board, OPPOSITE[color], alpha, beta, depth - 1, True))
+      score = max(score, alpha_beta(
+        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isUserWhite, True))
       alpha = max(alpha, score)
       if beta <= alpha:
         return score
     else:
-      score = min(score, alpha_beta(clone_board, OPPOSITE[color], alpha, beta, depth - 1, False))
+      score = min(score, alpha_beta(
+        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isUserWhite, False))
       beta = min(beta, score)
       if beta <= alpha:
         return score
