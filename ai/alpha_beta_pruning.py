@@ -41,13 +41,10 @@ def alpha_beta_pruning(board, color, depth):
 
 
 def alpha_beta_pruning_native(board, color, depth, isUserWhite):
-  if depth == 0:
-    return evaluate_board(board, isUserWhite)
-
   st = time.time()
   moves_list = helper.get_moves(board, color, filter_piece=None, isUserWhite=isUserWhite)
 
-  if len(moves_list) == 0:
+  if len(moves_list) == 0 or depth == 0:
     return None
 
   best_move = moves_list[0]
@@ -58,7 +55,8 @@ def alpha_beta_pruning_native(board, color, depth, isUserWhite):
 
   for move in moves_list:
     clone_board = helper.generate_board(board, move)
-    score = alpha_beta(clone_board, OPPOSITE[color], alpha, beta, depth - 1, isUserWhite, True)
+    score = alpha_beta(
+      clone_board, OPPOSITE[color], alpha, beta, depth - 1, isUserWhite, isMin=True)
     if score > best_score:
       best_move = move
       best_score = score
@@ -71,7 +69,7 @@ def alpha_beta_pruning_native(board, color, depth, isUserWhite):
 
 
 def alpha_beta(board, color, alpha, beta, depth, isUserWhite, isMin = False):
-  if depth == 0 or helper.game_over(board, color):
+  if depth == 0:
     return evaluate_board(board, isUserWhite)
 
   moves_list = helper.get_moves(board, color, filter_piece=None, isUserWhite=isUserWhite)
@@ -81,13 +79,13 @@ def alpha_beta(board, color, alpha, beta, depth, isUserWhite, isMin = False):
     clone_board = helper.generate_board(board, move)
     if not isMin:
       score = max(score, alpha_beta(
-        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isUserWhite, True))
+        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isUserWhite, isMin=True))
       alpha = max(alpha, score)
       if beta <= alpha:
         return score
     else:
       score = min(score, alpha_beta(
-        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isUserWhite, False))
+        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isUserWhite, isMin=False))
       beta = min(beta, score)
       if beta <= alpha:
         return score

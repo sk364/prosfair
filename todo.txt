@@ -12,4 +12,4 @@
 - Clock
 - Fallen pieces
 - Show piece value score
-- 
+- Promotion
