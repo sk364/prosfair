@@ -43,6 +43,7 @@ def alpha_beta_pruning(board, color, depth):
 def alpha_beta_pruning_native(board, color, depth, isUserWhite):
   st = time.time()
   moves_list = helper.get_moves(board, color, filter_piece=None, isUserWhite=isUserWhite)
+  moves_list = helper.filter_moves_on_check(board, color, moves_list)
 
   if len(moves_list) == 0 or depth == 0:
     return None
@@ -76,6 +77,7 @@ def alpha_beta(board, color, alpha, beta, depth, isUserWhite, isMin = False):
       return -evaluate_board(board, isUserWhite)
 
   moves_list = helper.get_moves(board, color, filter_piece=None, isUserWhite=isUserWhite)
+  moves_list = helper.filter_moves_on_check(board, color, moves_list)
 
   score = float('inf') if isMin else float('-inf')
   for move in moves_list:

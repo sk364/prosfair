@@ -37,11 +37,29 @@ def get_moves(board, color, filter_piece = None, isUserWhite = True):
       moves = rules.legal_rook_moves(board, color, piece)
     elif "pawn" in piece:
       moves = rules.legal_pawn_moves(board, color, piece, isUserWhite=isUserWhite)
-    
+
     for move in moves:
       moves_list = moves_list + [{"color": color, "piece": piece, "new_position": move}]
 
   return [move for move in moves_list if not filter_piece or move["piece"] == filter_piece]
+
+
+def filter_moves_on_check(board, color, moves):
+  if in_check(board, color):
+    _moves = []
+    for move in moves:
+      clone_board = generate_board(board, move)
+      if not in_check(clone_board, color):
+        _moves.append(move)
+    moves = _moves
+
+  _moves = []
+  for move in moves:
+    clone_board = generate_board(board, move)
+    if not in_check(clone_board, color):
+      _moves.append(move)
+
+  return _moves
 
 
 def get_reverse_map(board):

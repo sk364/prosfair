@@ -194,7 +194,7 @@ def looping_cpu_vs_human(board):
   old_y = 0
   new_x = 0
   new_y = 0
-  color = "black" # if round(random() * 100) <= 50 else "black"
+  color = "white" if round(random() * 100) <= 50 else "black"
   isUserWhite = color == "white"
 
   if not isUserWhite:
@@ -212,8 +212,6 @@ def looping_cpu_vs_human(board):
         pygame.quit()
         sys.exit()
         pygame.display.update()
-       
-       #checking for keyboard events
       if not game_over:
         if event.type == pygame.MOUSEBUTTONDOWN:
           x, y = pygame.mouse.get_pos()
