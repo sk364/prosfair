@@ -70,7 +70,10 @@ def alpha_beta_pruning_native(board, color, depth, isUserWhite):
 
 def alpha_beta(board, color, alpha, beta, depth, isUserWhite, isMin = False):
   if depth == 0:
-    return evaluate_board(board, isUserWhite)
+    if not isMin:
+      return evaluate_board(board, isUserWhite)
+    else:
+      return -evaluate_board(board, isUserWhite)
 
   moves_list = helper.get_moves(board, color, filter_piece=None, isUserWhite=isUserWhite)
 

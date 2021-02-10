@@ -5,10 +5,19 @@ from common import rules
 
 
 def game_over(board, color):
-  """stalemate and draw"""
-  if in_checkmate(board, color) or in_checkmate(board, OPPOSITE[color]):
-    return True
-  return False
+  if in_checkmate(board, color):
+    return { "who_won": color, "by": "checkmate" }
+
+  if in_checkmate(board, OPPOSITE[color]):
+    return { "who_won": OPPOSITE[color], "by": "checkmate" }
+
+  if in_stalemate(board, OPPOSITE[color]):
+    return { "who_won": None, "by": "stalemate" }
+
+  if is_draw(board):
+    return { "who_won": None, "by": "draw" }
+
+  return
 
 
 def get_moves(board, color, filter_piece = None, isUserWhite = True):
@@ -126,6 +135,7 @@ def in_stalemate(board, color_to_play):
 
 
 def is_draw(board):
+  color = "white"
   num_pieces_1 = len(board[color].keys())
   num_pieces_2 = len(board[OPPOSITE[color]].keys())
 

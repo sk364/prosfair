@@ -20,13 +20,45 @@ from common import rules
 from common import helper_functions as helper
 from ai import alpha_beta_pruning
 
-chessboard1 = json.load(open("./common/initial_state.json"))
-chessboard2 = json.load(open("./common/initial_state.json"))
-chessboard3 = json.load(open("./common/initial_state.json"))
-
-#created 3 chessboards for now
-CHESSBOARDS = [chessboard1, chessboard2, chessboard3]
-chessboard = CHESSBOARDS[0]   #current board set to the first.
+chessboard = json.load(open('common/initial_state.json'))
+"""{
+  "black": {
+    # "bishop_1": [7, 2],
+    # "bishop_2": [7, 5],
+    "king": [0, 4],
+    "knight_1": [5, 7],
+    # "knight_2": [7, 6],
+    # "pawn_1": [6, 0],
+    # "pawn_2": [6, 1],
+    # "pawn_3": [6, 2],
+    # "pawn_4": [6, 3],
+    # "pawn_5": [6, 4],
+    # "pawn_6": [6, 5],
+    # "pawn_7": [6, 6],
+    # "pawn_8": [6, 7],
+    # "queen": [7, 3],
+    # "rook_1": [7, 0],
+    # "rook_2": [7, 7]
+  },
+  "white": {
+    # "bishop_1": [0, 2],
+    # "bishop_2": [0, 5],
+    "king": [7, 7],
+    # "knight_1": [0, 1],
+    # "knight_2": [0, 6],
+    "pawn_1": [6, 7],
+    "pawn_2": [6, 6],
+    # "pawn_3": [1, 2],
+    # "pawn_4": [1, 3],
+    # "pawn_5": [1, 4],
+    # "pawn_6": [1, 5],
+    # "pawn_7": [1, 6],
+    # "pawn_8": [1, 7],
+    # "queen": [0, 3],
+    # "rook_1": [0, 0],
+    "rook_2": [7, 6]
+  }
+}"""
 
 pygame.init()
 screen = pygame.display.set_mode((SIZE, SIZE))
@@ -47,6 +79,14 @@ def flip_board(board):
   temp = dict(board["white"])
   board["white"] = dict(board["black"])
   board["black"] = temp
+
+  temp = board["white"]["king"]
+  board["white"]["king"] = board["white"]["queen"]
+  board["white"]["queen"] = temp
+
+  temp = board["black"]["king"]
+  board["black"]["king"] = board["black"]["queen"]
+  board["black"]["queen"] = temp
 
   return dict(board)
 
@@ -107,16 +147,16 @@ def draw_chessboard(board, moves = None, isUserWhite = True):
   pygame.display.update()
 
 
-def play_cpu_move(chessboards, board, color, current_board_idx, isUserWhite):
+def play_cpu_move(board, color, isUserWhite):
   cpu_move = alpha_beta_pruning.alpha_beta_pruning_native(
     board, OPPOSITE[color], DEPTH, isUserWhite)
-  chessboards[current_board_idx] = helper.generate_board(board, cpu_move)
-  draw_chessboard(chessboards[current_board_idx], moves=None, isUserWhite=isUserWhite)
+  board = helper.generate_board(board, cpu_move)
+  draw_chessboard(board, moves=None, isUserWhite=isUserWhite)
 
-  return chessboards[current_board_idx]
+  return board, helper.game_over(board, OPPOSITE[color])
 
 
-def play_move(chessboards, board, color, old_pos, current_board_idx, isUserWhite):
+def play_move(board, color, old_pos, isUserWhite):
   old_x, old_y = old_pos
   x, y = pygame.mouse.get_pos()
   new_x, new_y = get_chess_square(x, y)
@@ -140,21 +180,21 @@ def play_move(chessboards, board, color, old_pos, current_board_idx, isUserWhite
 
         draw_chessboard(board, moves=None, isUserWhite=isUserWhite)
 
-        # TODO: check for game over here
+        is_over = helper.game_over(board, color)
+        if not is_over:
+          print("Calculating...")
+          return play_cpu_move(board, color, isUserWhite)
 
-        print("Calculating...")
-        return play_cpu_move(chessboards, board, color, current_board_idx, isUserWhite)
-  return board
+        return board, is_over
+  return board, False
 
 
 def looping_cpu_vs_human(board):
-  cur = 0
   old_x = 0
   old_y = 0
   new_x = 0
   new_y = 0
-  color = "white" if round(random() * 100) <= 50 else "black"
-  chessboards = [dict(chessboard) for chessboard in CHESSBOARDS]
+  color = "black" # if round(random() * 100) <= 50 else "black"
   isUserWhite = color == "white"
 
   if not isUserWhite:
@@ -163,8 +203,9 @@ def looping_cpu_vs_human(board):
   draw_chessboard(board, moves=None, isUserWhite=isUserWhite)
 
   if not isUserWhite:
-    board = play_cpu_move(chessboards, board, color, cur, isUserWhite)
+    board, _ = play_cpu_move(board, color, isUserWhite)
 
+  game_over = False
   while True:
     for event in pygame.event.get():
       if event.type == QUIT:
@@ -173,46 +214,38 @@ def looping_cpu_vs_human(board):
         pygame.display.update()
        
        #checking for keyboard events
-      if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_RIGHT:
-          cur = (cur + 1) % 3
-          board = chessboards[cur]
+      if not game_over:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+          x, y = pygame.mouse.get_pos()
+          old_x, old_y = get_chess_square(x, y)
+          moves = []
 
-        if event.key == pygame.K_LEFT:
-          cur = (cur + 2) % 3
-          board = chessboards[cur]
+          for army in board.keys():
+            for piece in board[army].keys():
+              if board[army][piece][1] == old_x and board[army][piece][0] == old_y:
+                moves = [
+                  move['new_position']
+                  for move in helper.get_moves(
+                    board, color, filter_piece=piece, isUserWhite=isUserWhite)
+                ]
 
-        #updating the screen with the next or prev chessboard
-        draw_chessboard(board, moves=None, isUserWhite=isUserWhite)
-      if event.type == pygame.MOUSEBUTTONDOWN:
-        x, y = pygame.mouse.get_pos()
-        old_x, old_y = get_chess_square(x, y)
-        moves = []
+            draw_chessboard(board, moves=moves, isUserWhite=isUserWhite)
+        if event.type == pygame.MOUSEBUTTONUP:
+          x, y = pygame.mouse.get_pos()
+          new_x, new_y = get_chess_square(x, y)
 
-        for army in board.keys():
-          for piece in board[army].keys():
-            if board[army][piece][1] == old_x and board[army][piece][0] == old_y:
-              moves = [
-                move['new_position']
-                for move in helper.get_moves(
-                  board, color, filter_piece=piece, isUserWhite=isUserWhite)
-              ]
-
-          draw_chessboard(board, moves=moves, isUserWhite=isUserWhite)
-      if event.type == pygame.MOUSEBUTTONUP:
-        x, y = pygame.mouse.get_pos()
-        new_x, new_y = get_chess_square(x, y)
-
-        if new_x != old_x or new_y != old_y:
-          board = play_move(chessboards, board, color, (old_x, old_y), cur, isUserWhite)
+          if new_x != old_x or new_y != old_y:
+            board, is_over = play_move(board, color, (old_x, old_y), isUserWhite)
+            if is_over:
+              # TODO: display message
+              game_over = True
+              break
 
 
 def looping_cpu_vs_cpu(board):
   draw_chessboard(board)
 
   color = "white"
-  cur = 0
-  chessboards = [dict(chessboard) for chessboard in CHESSBOARDS]
 
   while True:
     for event in pygame.event.get():
@@ -220,20 +253,13 @@ def looping_cpu_vs_cpu(board):
         pygame.quit()
         sys.exit()
         pygame.display.update()
-      if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_RIGHT:
-          cur = (cur+1)%3
-          board = chessboards[cur]
 
-        if event.key == pygame.K_LEFT:
-          cur = (cur+2) % 3
-          board = chessboards[cur]
+    board, is_over = play_cpu_move(board, color)
 
-        draw_chessboard(board)
+    if is_over:
+      # TODO: display message
+      break
 
-    board = play_cpu_move(chessboards, board, color, cur)
-
-    # TODO: check for game over here
     color = OPPOSITE[color]
 
 # def looping_human_vs_human(board):
