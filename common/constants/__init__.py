@@ -1,0 +1,5 @@
+DEPTH = 3
+
+WHITE = "white"
+BLACK = "black"
+OPPOSITE = {WHITE : BLACK, BLACK : WHITE}

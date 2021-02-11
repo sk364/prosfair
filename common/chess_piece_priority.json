@@ -1,8 +1,0 @@
-{
-    "bishop": 30,
-    "king": 900,
-    "knight": 30,
-    "pawn": 10,
-    "queen": 90,
-    "rook": 50
-}
