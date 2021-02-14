@@ -269,12 +269,7 @@ class Board:
         board = self.clone(move)
         if not board.in_check(color):
           _moves.append(move)
+
       moves = _moves
 
-    _moves = []
-    for move in moves:
-      board = self.clone(move)
-      if not board.in_check(color):
-        _moves.append(move)
-
-    return _moves
+    return moves
