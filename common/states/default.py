@@ -7,7 +7,7 @@ DEFAULT_STATE = {
     "position": [7, 5],
   }, {
     "type": "k",
-    "position": [7, 3],
+    "position": [7, 4],
   }, {
     "type": "n",
     "position": [7, 1],
@@ -16,7 +16,7 @@ DEFAULT_STATE = {
     "position": [7, 6],
   }, {
     "type": "q",
-    "position": [7, 4],
+    "position": [7, 3],
   }, {
     "type": "r",
     "position": [7, 0],
@@ -56,7 +56,7 @@ DEFAULT_STATE = {
     "position": [0, 5],
   }, {
     "type": "k",
-    "position": [0, 3],
+    "position": [0, 4],
   }, {
     "type": "n",
     "position": [0, 1],
@@ -65,7 +65,7 @@ DEFAULT_STATE = {
     "position": [0, 6],
   }, {
     "type": "q",
-    "position": [0, 4],
+    "position": [0, 3],
   }, {
     "type": "r",
     "position": [0, 0],
