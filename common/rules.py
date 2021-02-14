@@ -23,7 +23,11 @@ def legal_pawn_moves(board, color, position):
   if board.user_color != color:
     if y == 1:
       if 8 > x > -1:
-        if [y + 2, x] not in opp_color_positions:
+        if (
+          [y + 2, x] not in opp_color_positions and
+          [y + 1, x] not in opp_color_positions and
+          [y + 1, x] not in color_positions
+        ):
           moves += [[y + 2, x]]
     if y < 7:
       if 8 > x > -1:
@@ -38,7 +42,11 @@ def legal_pawn_moves(board, color, position):
   else:
     if y == 6:
       if 8 > x > -1:
-        if [y - 2, x] not in opp_color_positions:
+        if (
+          [y - 2, x] not in opp_color_positions and
+          [y - 1, x] not in opp_color_positions and
+          [y - 1, x] not in color_positions
+        ):
           moves += [[y - 2, x]]
     if y > 0:
       if 8 > x > -1:

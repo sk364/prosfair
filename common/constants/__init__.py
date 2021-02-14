@@ -1,4 +1,4 @@
-DEPTH = 3
+DEPTH = 4
 
 WHITE = "white"
 BLACK = "black"
