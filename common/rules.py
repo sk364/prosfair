@@ -32,7 +32,6 @@ def legal_pawn_moves(board, color, position):
   opp_color_positions = [piece.position for piece in board.pieces if piece.color != color]
   color_positions = [piece.position for piece in board.pieces if piece.color == color]
   last_move = board.moves[-1] if len(board.moves) else None
-  # TODO: en passant
 
   moves = []
   if board.user_color != color:
@@ -54,6 +53,16 @@ def legal_pawn_moves(board, color, position):
       if x < 7:
         if [y + 1, x + 1] in opp_color_positions:
           moves += [[y + 1, x + 1]]
+
+    if last_move and y == 4 and last_move["piece"].type == "p":
+      old_position, new_position = last_move["old_position"], last_move["new_position"]
+      old_y, _ = old_position
+      new_y, new_x = new_position
+      if old_y == 6 and new_y == 4:
+        if new_x == x - 1:
+          moves += [[y + 1, x - 1]]
+        elif new_x == x + 1:
+          moves += [[y + 1, x + 1]]
   else:
     if y == 6:
       if 8 > x > -1:
@@ -72,6 +81,16 @@ def legal_pawn_moves(board, color, position):
           moves += [[y - 1, x - 1]]
       if x < 7:
         if [y - 1, x + 1] in opp_color_positions:
+          moves += [[y - 1, x + 1]]
+
+    if last_move and y == 3 and last_move["piece"].type == "p":
+      old_position, new_position = last_move["old_position"], last_move["new_position"]
+      old_y, _ = old_position
+      new_y, new_x = new_position
+      if old_y == 1 and new_y == 3:
+        if new_x == x - 1:
+          moves += [[y - 1, x - 1]]
+        elif new_x == x + 1:
           moves += [[y - 1, x + 1]]
 
   return [move for move in moves if move not in color_positions]

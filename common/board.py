@@ -75,7 +75,9 @@ class Board:
     print(f'{self.side_to_move}:')
     print(board_str)
     print(", ".join([
-      f'{piece.type.upper()} ({piece.get_actual_position(self.user_color)})' for piece in self.moves]))
+      f'{move["piece"].type.upper()} ({move["piece"].get_actual_position(self.user_color)})'
+      for move in self.moves
+    ]))
     return ""
 
   def __repr__(self):
@@ -129,6 +131,42 @@ class Board:
             if not is_king_side and _piece.position == [0, 0]:
               _piece.position = 0, 3
 
+  def _kill_pawn_on_en_passant(self, color, position):
+    last_move = self.moves[-1] if len(self.moves) else None
+    if not last_move or last_move["piece"].type != "p":
+      return
+
+    opp_color_positions = [piece.position for piece in self.pieces if piece.color != color]
+
+    y, x = position
+    if self.user_color == color:
+      if y == 2:
+        old_position, new_position = last_move["old_position"], last_move["new_position"]
+        old_y, _ = old_position
+        new_y, new_x = new_position
+        if old_y == 1 and new_y == 3 and new_x == x and [2, x] not in opp_color_positions:
+          killed_piece_idx = None
+          for idx, piece in enumerate(self.pieces):
+            if piece.type == "p" and piece.position == [3, x]:
+              killed_piece_idx = idx
+              break
+
+          if killed_piece_idx:
+            del self.pieces[killed_piece_idx]
+    elif y == 5:
+      old_position, new_position = last_move["old_position"], last_move["new_position"]
+      old_y, _ = old_position
+      new_y, new_x = new_position
+      if old_y == 6 and new_y == 4 and new_x == x and [5, x] not in opp_color_positions:
+        killed_piece_idx = None
+        for idx, piece in enumerate(self.pieces):
+          if piece.type == "p" and piece.position == [4, x]:
+            killed_piece_idx = idx
+            break
+
+        if killed_piece_idx:
+          del self.pieces[killed_piece_idx]
+
   def _update_position(self, move):
     for piece in self.pieces:
       if (
@@ -167,9 +205,11 @@ class Board:
             self.can_castle_queen_side = False
 
         self._update_rook_position(piece, move)
+        self._kill_pawn_on_en_passant(self.side_to_move, move["new_position"])
 
-        self.moves.append(piece)
+        self.moves.append({ **move, "piece": piece })
         self.__str__()
+
         self.side_to_move = OPPOSITE[self.side_to_move]
 
         return self.game_over()
