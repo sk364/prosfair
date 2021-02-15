@@ -8,9 +8,22 @@ def legal_king_moves(board, color, position):
     for j in range(3):
       if  8 > y + i - 1 > -1 and 8 > x + j - 1 > -1:
         if y + i - 1 != x or x + j - 1 != x:
-          moves += [[y + i - 1, x + j - 1]] 
+          moves += [[y + i - 1, x + j - 1]]
 
-  return [move for move in moves if move not in color_positions]
+  if board.can_castle_king_side:
+    if [y, x + 1] not in color_positions and [y, x + 2] not in color_positions:
+      moves += [[y, x + 2]]
+
+  if board.can_castle_queen_side:
+    can_castle = True
+    for i in range(3):
+      if [y, x - i] in color_positions:
+        can_castle = False
+    if can_castle:
+      moves += [[y, x - 2]]
+
+  moves = [move for move in moves if move not in color_positions]
+  return moves
 
 
 def legal_pawn_moves(board, color, position):
@@ -18,6 +31,8 @@ def legal_pawn_moves(board, color, position):
 
   opp_color_positions = [piece.position for piece in board.pieces if piece.color != color]
   color_positions = [piece.position for piece in board.pieces if piece.color == color]
+  last_move = board.moves[-1] if len(board.moves) else None
+  # TODO: en passant
 
   moves = []
   if board.user_color != color:

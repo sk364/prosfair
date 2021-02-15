@@ -24,16 +24,16 @@ screen = pygame.display.set_mode((SIZE, SIZE))
 def draw_chessboard(board, moves = None):
   screen.fill(COLOR_WHITE)
 
-  startX, startY = 0, 0
+  start_x, start_y = 0, 0
   for idx in range(8):
     if board.user_color == WHITE:
-      startX = 0 if idx % 2 != 0 else SIZE // 8
+      start_x = 0 if idx % 2 != 0 else SIZE // 8
     else:
-      startX = SIZE // 8 if idx % 2 != 0 else 0
+      start_x = SIZE // 8 if idx % 2 != 0 else 0
     for __ in range(8):
-      pygame.draw.rect(screen, COLOR_GRAY, ((startX, startY), (SIZE // 8, SIZE // 8)))
-      startX += 2 * SIZE // 8
-    startY += SIZE // 8
+      pygame.draw.rect(screen, COLOR_GRAY, ((start_x, start_y), (SIZE // 8, SIZE // 8)))
+      start_x += 2 * SIZE // 8
+    start_y += SIZE // 8
 
   for piece in board.pieces:
     y, x = piece.position
@@ -86,6 +86,7 @@ def looping_cpu_vs_human():
   if color != WHITE:
     board.play_move()
 
+  piece_clicked = None
   game_over = False
   while True:
     for event in pygame.event.get():
@@ -100,9 +101,10 @@ def looping_cpu_vs_human():
           moves = []
 
           for piece in board.pieces:
-            if piece.position[0] == old_y and piece.position[1] == old_x:
+            if piece.position == [old_y, old_x]:
               moves = board.filter_moves_on_check(board.user_color, piece.get_moves(board))
               moves = [move['new_position'] for move in moves]
+              piece_clicked = piece.type
 
           draw_chessboard(board, moves=moves)
         if event.type == pygame.MOUSEBUTTONUP:
@@ -110,7 +112,13 @@ def looping_cpu_vs_human():
           new_x, new_y = get_chess_square(SIZE, x, y)
 
           if new_x != old_x or new_y != old_y:
-            is_over = board.play_move(old_pos=(old_y, old_x), new_pos=(new_y, new_x))
+            move = {
+              "old_position": [old_y, old_x],
+              "new_position": [new_y, new_x],
+              "piece": piece_clicked,
+              "color": board.side_to_move
+            }
+            is_over = board.play_move(move=move)
             draw_chessboard(board)
             if is_over:
               # TODO: display message

@@ -2,7 +2,7 @@ from ai.alpha_beta_pruning import alpha_beta_pruning_native as alpha_beta_prunin
 from common import rules
 from common.constants import BLACK, OPPOSITE, WHITE, DEPTH
 from common.constants.pieces import PIECE_NAME_MAP, PIECE_PRIORITY_MAP, PIECE_SQUARE_MAP
-from common.states import DEFAULT_STATE as INITIAL_STATE
+from common.states.default import STATE as INITIAL_STATE
 
 
 class Piece:
@@ -55,6 +55,9 @@ class Board:
     self.pieces = pieces
     self.user_color = user_color
     self.side_to_move = WHITE
+    self.moves = []
+    self.can_castle_king_side = True
+    self.can_castle_queen_side = True
 
   def __str__(self):
     board_str = ""
@@ -69,7 +72,10 @@ class Board:
         if not found:
           board_str += '  | '
       board_str += "\n"
+    print(f'{self.side_to_move}:')
     print(board_str)
+    print(", ".join([
+      f'{piece.type.upper()} ({piece.get_actual_position(self.user_color)})' for piece in self.moves]))
     return ""
 
   def __repr__(self):
@@ -102,71 +108,77 @@ class Board:
       for piece in board.pieces:
         if piece.color == move["color"] and piece.position == move["old_position"]:
           piece.position = move["new_position"]
+          board._update_rook_position(piece, move)
           break
 
     return board
 
-  def play_move(self, old_pos=None, new_pos=None):
-    if self.side_to_move == self.user_color:
-      old_y, old_x = old_pos
-      new_y, new_x = new_pos
+  def _update_rook_position(self, piece, move):
+    if piece.type == "k" and abs(piece.position[1] - move["old_position"][1]) == 2:
+      is_king_side = (piece.position[1] - move["old_position"][1]) > 0
+      for _piece in self.pieces:
+        if _piece.type == 'r':
+          if self.user_color == move["color"]:
+            if is_king_side and _piece.position == [7, 7]:
+              _piece.position = [7, 5]
+            if not is_king_side and _piece.position == [7, 0]:
+              _piece.position = [7, 3]
+          else:
+            if is_king_side and _piece.position == [0, 7]:
+              _piece.position = [0, 5]
+            if not is_king_side and _piece.position == [0, 0]:
+              _piece.position = 0, 3
 
-      for piece in self.pieces:
-        if (
-          piece.position[0] == old_y and
-          piece.position[1] == old_x and
-          piece.color == self.user_color
-        ):
-          moves = [move["new_position"] for move in piece.get_moves(self)]
-          if [new_y, new_x] in moves:
-            piece.position[1] = new_x
-            piece.position[0] = new_y
+  def _update_position(self, move):
+    for piece in self.pieces:
+      if (
+        piece.color == move["color"] and
+        piece.type == move["piece"] and
+        piece.position == move['old_position']
+      ):
+        piece.position = move['new_position']
 
-            killed_piece_idx = None
-            for idx, opp_piece in enumerate(self.pieces):
-              if (
-                opp_piece.color == OPPOSITE[self.user_color] and
-                opp_piece.position[0] == new_y and opp_piece.position[1] == new_x and
-                opp_piece.type != "k"
-              ):
-                killed_piece_idx = idx
-                break
+        killed_piece_idx = None
+        for idx, opp_piece in enumerate(self.pieces):
+          if (
+            opp_piece.color == OPPOSITE[self.side_to_move] and
+            opp_piece.position == piece.position and
+            opp_piece.type != "k"
+          ):
+            killed_piece_idx = idx
+            break
 
-            if killed_piece_idx is not None:
-              del self.pieces[killed_piece_idx]
+        if killed_piece_idx is not None:
+          del self.pieces[killed_piece_idx]
 
-            self.__str__()
+        if piece.type == "k":
+          self.can_castle_king_side = False
+          self.can_castle_queen_side = False
 
-            self.side_to_move = OPPOSITE[self.side_to_move]
+        if piece.type == "r":
+          if (self.side_to_move == self.user_color and self.move['old_position'] == [7, 7]) or (
+            self.side_to_move != self.user_color and self.move['old_position'] == [0, 7]
+          ):
+            self.can_castle_king_side = False
 
-            return self.game_over()
-    else:
-      move = alpha_beta_pruning(self, self.side_to_move, DEPTH)
-      for piece in self.pieces:
-        if (
-          piece.color == move["color"] and
-          piece.type == move["piece"] and
-          piece.position == move['old_position']
-        ):
-          piece.position = move['new_position']
+          if (self.side_to_move == self.user_color and self.move['old_position'] == [7, 0]) or (
+            self.side_to_move != self.user_color and self.move['old_position'] == [0, 0]
+          ):
+            self.can_castle_queen_side = False
 
-          killed_piece_idx = None
-          for idx, _piece in enumerate(self.pieces):
-            if _piece.position == piece.position and _piece.color == self.user_color:
-              killed_piece_idx = idx
-              break
+        self._update_rook_position(piece, move)
 
-          if killed_piece_idx is not None:
-            del self.pieces[killed_piece_idx]
+        self.moves.append(piece)
+        self.__str__()
+        self.side_to_move = OPPOSITE[self.side_to_move]
 
-          self.__str__()
-
-          break
-
-      self.side_to_move = OPPOSITE[self.side_to_move]
-
-      return self.game_over()
+        return self.game_over()
     return
+
+  def play_move(self, move=None):
+    if self.side_to_move != self.user_color and move is None:
+      move = alpha_beta_pruning(self, self.side_to_move, DEPTH)
+    return self._update_position(move)
 
   def in_check(self, color):
     """
