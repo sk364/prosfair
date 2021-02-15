@@ -1,22 +1,7 @@
 STATE = {
   "white": [{
-    "type": "b",
-    "position": [7, 2],
-  }, {
-    "type": "b",
-    "position": [7, 5],
-  }, {
     "type": "k",
     "position": [7, 4],
-  }, {
-    "type": "n",
-    "position": [7, 1],
-  }, {
-    "type": "n",
-    "position": [7, 6],
-  }, {
-    "type": "q",
-    "position": [7, 3],
   }, {
     "type": "r",
     "position": [7, 0],
@@ -49,23 +34,8 @@ STATE = {
     "position": [6, 7],
   }],
   "black": [{
-    "type": "b",
-    "position": [0, 2],
-  }, {
-    "type": "b",
-    "position": [0, 5],
-  }, {
     "type": "k",
     "position": [0, 4],
-  }, {
-    "type": "n",
-    "position": [0, 1],
-  }, {
-    "type": "n",
-    "position": [0, 6],
-  }, {
-    "type": "q",
-    "position": [0, 3],
   }, {
     "type": "r",
     "position": [0, 0],
