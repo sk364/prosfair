@@ -56,7 +56,7 @@ def alpha_beta_pruning_native(board, color, depth):
   for move in moves_list:
     clone_board = board.clone(move)
     score = alpha_beta(
-      clone_board, OPPOSITE[color], alpha, beta, depth - 1, isMin=True)
+      clone_board, OPPOSITE[color], alpha, beta, depth - 1, is_min=True)
     if score > best_score:
       best_move = move
       best_score = score
@@ -68,25 +68,25 @@ def alpha_beta_pruning_native(board, color, depth):
   return best_move
 
 
-def alpha_beta(board, color, alpha, beta, depth, isMin = False):
+def alpha_beta(board, color, alpha, beta, depth, is_min = False):
   if depth == 0:
-    return (-1 if isMin else 1) * evaluate_board(board)
+    return (-1 if is_min else 1) * evaluate_board(board)
 
   moves_list = board.get_moves(color)
   moves_list = board.filter_moves_on_check(color, moves_list)
 
-  score = float('inf') if isMin else float('-inf')
+  score = float('inf') if is_min else float('-inf')
   for move in moves_list:
     clone_board = board.clone(move)
-    if not isMin:
+    if not is_min:
       score = max(score, alpha_beta(
-        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isMin=True))
+        clone_board, OPPOSITE[color], alpha, beta, depth - 1, is_min=True))
       alpha = max(alpha, score)
       if beta <= alpha:
         return score
     else:
       score = min(score, alpha_beta(
-        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isMin=False))
+        clone_board, OPPOSITE[color], alpha, beta, depth - 1, is_min=False))
       beta = min(beta, score)
       if beta <= alpha:
         return score
