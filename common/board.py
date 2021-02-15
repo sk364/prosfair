@@ -115,21 +115,19 @@ class Board:
 
     return board
 
-  def _update_rook_position(self, piece, move):
-    if piece.type == "k" and abs(piece.position[1] - move["old_position"][1]) == 2:
-      is_king_side = (piece.position[1] - move["old_position"][1]) > 0
-      for _piece in self.pieces:
-        if _piece.type == 'r':
-          if self.user_color == move["color"]:
-            if is_king_side and _piece.position == [7, 7]:
-              _piece.position = [7, 5]
-            if not is_king_side and _piece.position == [7, 0]:
-              _piece.position = [7, 3]
-          else:
-            if is_king_side and _piece.position == [0, 7]:
-              _piece.position = [0, 5]
-            if not is_king_side and _piece.position == [0, 0]:
-              _piece.position = 0, 3
+  def _update_rook_position(self, color, is_king_side):
+    for _piece in self.pieces:
+      if _piece.type == 'r':
+        if self.user_color == color:
+          if is_king_side and _piece.position == [7, 7]:
+            _piece.position = [7, 5]
+          if not is_king_side and _piece.position == [7, 0]:
+            _piece.position = [7, 3]
+        else:
+          if is_king_side and _piece.position == [0, 7]:
+            _piece.position = [0, 5]
+          if not is_king_side and _piece.position == [0, 0]:
+            _piece.position = 0, 3
 
   def _kill_pawn_on_en_passant(self, color, position):
     last_move = self.moves[-1] if len(self.moves) else None
@@ -151,7 +149,7 @@ class Board:
               killed_piece_idx = idx
               break
 
-          if killed_piece_idx:
+          if killed_piece_idx is not None:
             del self.pieces[killed_piece_idx]
     elif y == 5:
       old_position, new_position = last_move["old_position"], last_move["new_position"]
@@ -164,8 +162,20 @@ class Board:
             killed_piece_idx = idx
             break
 
-        if killed_piece_idx:
+        if killed_piece_idx is not None:
           del self.pieces[killed_piece_idx]
+
+  def _promote_pawn(self, color, piece, upgrade_to="q"):
+    pawn_idx = None
+    for idx, _piece in enumerate(self.pieces):
+      if _piece.type == piece.type and _piece.position == piece.position:
+        pawn_idx = idx
+        break
+
+    if pawn_idx is not None:
+      del self.pieces[pawn_idx]
+
+    self.pieces.append(Piece(type=upgrade_to, color=piece.color, position=piece.position))
 
   def _update_position(self, move):
     for piece in self.pieces:
@@ -192,19 +202,24 @@ class Board:
         if piece.type == "k":
           self.can_castle_king_side = False
           self.can_castle_queen_side = False
+          num_steps_taken = piece.position[1] - move["old_position"][1]
+          if abs(num_steps_taken) == 2:
+            self._update_rook_position(self.side_to_move, num_steps_taken > 0)
 
         if piece.type == "r":
-          if (self.side_to_move == self.user_color and self.move['old_position'] == [7, 7]) or (
-            self.side_to_move != self.user_color and self.move['old_position'] == [0, 7]
+          if (self.side_to_move == self.user_color and move['old_position'] == [7, 7]) or (
+            self.side_to_move != self.user_color and move['old_position'] == [0, 7]
           ):
             self.can_castle_king_side = False
 
-          if (self.side_to_move == self.user_color and self.move['old_position'] == [7, 0]) or (
-            self.side_to_move != self.user_color and self.move['old_position'] == [0, 0]
+          if (self.side_to_move == self.user_color and move['old_position'] == [7, 0]) or (
+            self.side_to_move != self.user_color and move['old_position'] == [0, 0]
           ):
             self.can_castle_queen_side = False
 
-        self._update_rook_position(piece, move)
+        if piece.type == "p" and piece.position[0] in [0, 7]:
+          self._promote_pawn(self.side_to_move, piece)
+
         self._kill_pawn_on_en_passant(self.side_to_move, move["new_position"])
 
         self.moves.append({ **move, "piece": piece })
