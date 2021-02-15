@@ -5,41 +5,100 @@ from ai.cpu import evaluate_board
 from common.constants import OPPOSITE
 
 def alpha_beta_pruning(board, color, depth):
-  temp_str = \
-    "king queen bishop_1 bishop_2 knight_1 knight_2 rook_1 rook_2 pawn_1 pawn_2 pawn_3 pawn_4 pawn_5 pawn_6 pawn_7 pawn_8".split(" ")
+  data = ""
+  piece_order = ["k", "q", "b", "n", "r", "p"]
 
-  data= ""
-  mm = {}
-  for i in range(len(temp_str)):
-    for army in board: 
-      xy = board[army][temp_str[i]] if temp_str[i] in board[army].keys() else [-1, 1]
-      data = data + str(xy[0]) +" "+ str(xy[1]) + "\n"
-      mm[i + (16 if army == "black" else 0)] = temp_str[i]
+  user_piece_positions = {
+    "k": [],
+    "q": [],
+    "b": [],
+    "n": [],
+    "r": [],
+    "p": []
+  }
+  cpu_piece_positions = {
+    "k": [],
+    "q": [],
+    "b": [],
+    "n": [],
+    "r": [],
+    "p": []
+  }
+  user_pieces = [_p for _p in board.pieces if _p.color != color]
+  cpu_pieces = [_p for _p in board.pieces if _p.color == color]
 
-  player = 0 if color == "white" else 16
+  for piece in user_pieces:
+    user_piece_positions[piece.type].append(piece.position)
 
-  proc = subprocess.Popen(["ai/minimax", str(player), str(depth) ],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+  for piece_type in piece_order:
+    positions = user_piece_positions[piece_type]
+    if piece_type == 'k' or piece_type == 'q':
+      if positions:
+        data += f'{positions[0][0]} {positions[0][1]}\n'
+      else:
+        data += '-1 1\n'
+    else:
+      if piece_type in ['b', 'n', 'r']:
+        num_killed = 2 - len(positions)
+      else:
+        num_killed = 8 - len(positions)
+
+      for position in positions:
+        data += f'{position[0]} {position[1]}\n'
+
+      for _ in range(num_killed):
+        data += '-1 1\n'
+
+  for piece in cpu_pieces:
+    cpu_piece_positions[piece.type].append(piece.position)
+
+  for piece_type in piece_order:
+    positions = cpu_piece_positions[piece_type]
+    if piece_type == 'k' or piece_type == 'q':
+      if positions:
+        data += f'{positions[0][0]} {positions[0][1]}\n'
+      else:
+        data += '-1 1\n'
+    else:
+      if piece_type in ['b', 'n', 'r']:
+        num_killed = 2 - len(positions)
+      else:
+        num_killed = 8 - len(positions)
+
+      for position in positions:
+        data += f'{position[0]} {position[1]}\n'
+
+      for _ in range(num_killed):
+        data += '-1 1\n'
+
+  print(data)
+  player = 16
+
+  proc = subprocess.Popen(
+    ["ai/minimax", str(depth)],
+    stdout=subprocess.PIPE,
+    stdin=subprocess.PIPE
+  )
 
   st = time.time()
   out = proc.communicate(data.encode("utf-8"))
   total = time.time() - st
   print(total)
 
-  piece, x, y = out[0].decode('utf-8').split(" ")
-  piece = mm[int(piece)]
-  x = int(x)
-  y = int(y)
+  p = out[0].decode('utf-8').split(" ")
+  print(p)
+  # piece = mm[int(piece)]
+  # x = int(x)
+  # y = int(y)
 
-  print(piece , x, y)
+  # print(piece, x, y)
 
-  return {
-    'color': "black",
-    'piece' : piece,
-    'new_position' : [y, x]
-  }
+  # # TODO: set old_position
+  # return {'color': color, 'piece': piece, 'new_position': [y, x], 'old_position': None}
 
 
 def alpha_beta_pruning_native(board, color, depth):
+  print("Calculating...")
   st = time.time()
   moves_list = board.get_moves(color)
   moves_list = board.filter_moves_on_check(color, moves_list)
