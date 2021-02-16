@@ -64,6 +64,11 @@ vector<move_piece> get_all_moves(vector<llu> &, int);
 vector<llu> generate_board(vector<llu> &, move_piece);
 
 
+int opposite(int army) {
+    return army < OKING ? KING : OKING;
+}
+
+
 int find_pos(llu x) {
     int i = 0;
     for (int i=0; i < 64; i++)
@@ -86,16 +91,28 @@ void print_bitboard(llu x) {
 
 
 void pretty_print_board(vector<llu> board) {
-    vector<int> temp(64, 0);
+    vector<int> temp(64, -1);
 
     for (int i=0; i < 32; i++) {
         int x = find_pos(board[i]) % 8, y = find_pos(board[i]) / 8;
         temp[y * 8 + x] = i;
     }
 
-    for (int i=0; i < 8; i++, putchar('\n'))
-        for (int j=0; j < 8; j++, putchar(' '))
-            cout << temp[i * 8 + j];
+    for (int i=0; i < 8; i++, putchar('\n')) {
+        for (int j=0; j < 8; j++, putchar(' ')) {
+            if (temp[i * 8 + j] == -1)
+                cout << "00";
+            else {
+                if (temp[i * 8 + j] < 10 or temp[i * 8 + j] == 16)
+                    cout << "0";
+
+                if (temp[i * 8 + j] != 0 and temp[i * 8 + j] != 16)
+                    cout << temp[i * 8 + j];
+                else
+                    cout << "K";
+            }
+        }
+    }
 }
 
 
@@ -108,7 +125,7 @@ void print_vec_bitboard(vector<llu> v) {
 
 void print_move_vector(vector<move_piece> v) {
     for(int i=0; i < v.size(); i++)
-        cout << v[i].piece << " " << v[i].y << " "<< v[i].x << " , ";
+        cout << v[i].piece << " " << v[i].y << " "<< v[i].x << ", ";
     cout << endl;
 }
 
@@ -154,6 +171,7 @@ inline llu hash_pair(llu a, llu b) {
     v.push_back(b);
     return hasher(v);
 }
+
 
 inline float piece_priority(int piece) {
     switch(piece) {
@@ -484,7 +502,7 @@ llu moves_pawn_double_jump(llu b, bool dir, llu pawn_move_board) {
 llu find_enemy_occupied_area(vector<llu> &board, int piece) {
     llu occupied_enemy_area = 0;
 
-    for (int i=(piece < OKING ? OKING : KING); i <= (piece < OKING ? OPAWN8 : PAWN8); i++) {
+    for (int i=opposite(piece); i <= (piece < OKING ? OPAWN8 : PAWN8); i++) {
         occupied_enemy_area |= board[i];
     }
 
@@ -495,7 +513,7 @@ llu find_enemy_occupied_area(vector<llu> &board, int piece) {
 llu find_friend_occupied_area(vector<llu> &board, int piece) {
     llu occupied_friend_area = 0;
 
-    for (int i=(piece < OKING ? KING : OKING); i <= (piece < OKING ? PAWN8 : OPAWN8); i++)
+    for (int i=opposite(piece); i <= (piece < OKING ? PAWN8 : OPAWN8); i++)
         occupied_friend_area |= board[i];
 
     return occupied_friend_area;
@@ -525,7 +543,7 @@ llu pawn_moves_wrapper(vector<llu> &board, int pawn) {
 bool if_piece_under_attack(vector<llu> & board, int piece) {
     llu enemy_attack_area = 0;
 
-    for (int i=piece < OKING ? OKING : KING; i <= piece < OKING ? OPAWN8 : PAWN8; i++)
+    for (int i=opposite(piece); i <= (piece < OKING ? OPAWN8 : PAWN8); i++)
         enemy_attack_area |= moves_wrapper(board, i);
 
     if (enemy_attack_area & board[piece])
@@ -540,14 +558,14 @@ bool in_check(vector<llu> & board, int king) {
 }
 
 
-bool in_checkmate(vector<llu> & board, int king) {
-    if (!in_check(board,king)) return false;
+bool in_checkmate(vector<llu> &board, int king) {
+    if (!in_check(board, king)) return false;
 
     vector<move_piece> moves = get_all_moves(board, king);
 
     for (int i=0 ; i < moves.size(); i++) {
-        vector<llu> temp_board = generate_board(board,moves[i]);
-        if(!in_check(temp_board,king))
+        vector<llu> temp_board = generate_board(board, moves[i]);
+        if(!in_check(temp_board, king))
             return false;
     }
 
@@ -570,8 +588,9 @@ vector<move_piece> get_move_vector(llu b, int piece) {
 vector<llu> find_moves(vector<llu> & board, int army_king) {
     vector<llu>  moves(16, return_llu());
 
-    for (int i=0; i < 16; i++)
+    for (int i=0; i < 16; i++) {
         moves[i] = moves_wrapper(board, army_king + i);
+    }
 
     return moves;
 }
@@ -583,7 +602,15 @@ vector<move_piece> get_all_moves(vector<llu> &board, int army_king) {
 
     for (int i=0; i < 16; i++) {
         vector<move_piece> moves_list = get_move_vector(moves_bit[i], i + army_king);
-        ret_v.insert(ret_v.end(), moves_list.begin(), moves_list.end());
+        vector<move_piece> _moves;
+        for (int j=0; j < moves_list.size(); j++) {
+            vector<llu> clone_board = generate_board(board, moves_list[j]);
+            if (!in_check(clone_board, army_king)) {
+                _moves.push_back(moves_list[j]);
+            }
+        }
+
+        ret_v.insert(ret_v.end(), _moves.begin(), _moves.end());
     }
 
     return ret_v;
@@ -592,7 +619,7 @@ vector<move_piece> get_all_moves(vector<llu> &board, int army_king) {
 
 vector<llu> generate_board(vector<llu> & board,move_piece m) {
     vector<llu> new_board(board);
-    for (int i=(m.piece < OKING ? OKING : KING); i <= ((m.piece < OKING) ? OPAWN8 : PAWN8); i++) {
+    for (int i=opposite(m.piece); i <= ((m.piece < OKING) ? OPAWN8 : PAWN8); i++) {
         if (m.x == find_pos(new_board[i]) % 8 and m.y == find_pos(new_board[i]) / 8 ) {
             new_board[i] = 0;
             break;
@@ -610,40 +637,37 @@ float evaluate_board(vector<llu> &board, int army_king) {
     if (evaluate_board_memo.find(board_hash) != evaluate_board_memo.end())
         return evaluate_board_memo[board_hash];
     else {
-        if (in_checkmate(board, army_king)) {
-            return evaluate_board_memo[board_hash] = (float)-99999;
-        }
-        if (in_checkmate(board, army_king < OKING ? OKING : KING)) {
-            return evaluate_board_memo[board_hash] = (float)99999;
-        }
+        if (in_checkmate(board, army_king))
+            return -99999;
+        if (in_checkmate(board, opposite(army_king)))
+            return 99999;
 
         float sum = 0.0;
         for(int i = KING; i < OKING; i++)
-            sum += ((board[i] != return_llu()) - (board[i + OKING] != return_llu())) *piece_priority(i);
+            sum += ((board[i] != return_llu()) - (board[i + OKING] != return_llu())) * piece_priority(i);
 
-        return evaluate_board_memo[board_hash] = sum;
+        return sum;
     }
 }
 
 
-move_piece alpha_beta(vector<llu> &board, int army_king, int depth) {
+move_piece alpha_beta(vector<llu> &board, int army_king, int depth, float &best_score) {
     vector<move_piece> moves_list = get_all_moves(board, army_king);
     if (depth <= 0 or moves_list.size() == 0)
         return (move_piece){-1, 0, 0};
 
-    float best_score = -99999;
     float alpha = -99999, beta = 99999;
     move_piece best_move = moves_list[0];
 
     // print_move_vector(moves_list);
     for (int i=0; i < moves_list.size(); i++) {
-        // vector<llu> clone_board = generate_board(board, moves_list[i]);
-        // float score = alpha_beta_min(clone_board, army_king < OKING ? OKING : KING, alpha, beta, depth - 1);
+        vector<llu> clone_board = generate_board(board, moves_list[i]);
+        float score = alpha_beta_min(clone_board, opposite(army_king), alpha, beta, depth - 1);
 
-        // if (score > best_score) {
-        //     best_move = moves_list[i];
-        //     best_score = score;
-        // }
+        if (score > best_score) {
+            best_move = moves_list[i];
+            best_score = score;
+        }
     }
 
     return best_move;
@@ -656,30 +680,25 @@ float alpha_beta_min(vector<llu> &board, int army_king, float alpha, float beta,
 
     llu board_hash = hasher(board);
 
-    if (min_play_memo.find(board_hash) != min_play_memo.end())
+    if (min_play_memo.find(board_hash) != min_play_memo.end()) {
         return min_play_memo[board_hash];
-    else {
+    } else {
         vector<move_piece> moves_list = get_all_moves(board, army_king);
 
-        if (moves_list.size() == 0)
-            return -evaluate_board(board, army_king);
-
-        float _alpha = alpha;
-        float _beta = beta;
         float score = 99999;
 
         for (int i=0; i < moves_list.size(); i++) {
             vector<llu> clone_board = generate_board(board, moves_list[i]);
-            float score = min(
+            score = min(
                 score,
-                alpha_beta_max(clone_board, army_king < OKING ? OKING : KING, _alpha, _beta, depth - 1)
+                alpha_beta_max(clone_board, opposite(army_king), alpha, beta, depth - 1)
             );
 
-            _beta = min(score, _beta);
-            if (_beta <= _alpha)
-                return min_play_memo[board_hash] = score;   
+            beta = min(score, beta);
+            if (beta <= alpha)
+                return score;
         }
-        return min_play_memo[board_hash] = score;
+        return score;
     }
 }
 
@@ -695,25 +714,20 @@ float alpha_beta_max(vector<llu> &board, int army_king, float alpha, float beta,
     else {
         vector<move_piece> moves_list = get_all_moves(board, army_king);
 
-        if (moves_list.size() == 0)
-            return evaluate_board(board, army_king);
-
-        float _alpha = alpha;
-        float _beta = beta;
         float score = -99999;
 
         for (int i=0; i < moves_list.size(); i++) {
             vector<llu> clone_board = generate_board(board, moves_list[i]);
-            float score = max(
+            score = max(
                 score,
-                alpha_beta_min(clone_board, army_king < OKING ? OKING : KING, _alpha, _beta, depth - 1)
+                alpha_beta_min(clone_board, opposite(army_king), alpha, beta, depth - 1)
             );
-            _alpha = max(score, _alpha);
+            alpha = max(score, alpha);
 
-            if (_beta >= _alpha)
-                return max_play_memo[board_hash] = score;   
+            if (beta <= alpha)
+                return score;   
         }
-        return max_play_memo[board_hash] = score;
+        return score;
     }
 }
 
@@ -733,9 +747,11 @@ int main(int argc, char *argv[]) {
         else
             bb[i] = return_llu();
     }
+    // pretty_print_board(bb);
 
-    move_piece ans = alpha_beta(bb, player, depth);
-    cout << find_pos(bb[ans.piece]) << " " << ans.piece << " " << ans.x << " " << ans.y;
+    float score = -99999;
+    move_piece ans = alpha_beta(bb, player, depth, score);
+    cout << find_pos(bb[ans.piece]) << " " << ans.piece << " " << ans.x << " " << ans.y << " " << score;
 
     return 0;
 }
