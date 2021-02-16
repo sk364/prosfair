@@ -87,6 +87,7 @@ def looping_cpu_vs_human():
     board.play_move()
 
   piece_clicked = None
+  piece_moves = []
   game_over = False
   while True:
     for event in pygame.event.get():
@@ -97,21 +98,26 @@ def looping_cpu_vs_human():
       if not game_over:
         if event.type == pygame.MOUSEBUTTONDOWN:
           x, y = pygame.mouse.get_pos()
-          old_x, old_y = get_chess_square(SIZE, x, y)
+          _x, _y = get_chess_square(SIZE, x, y)
           moves = []
 
+          clicked_on_piece = False
           for piece in board.pieces:
-            if piece.position == [old_y, old_x]:
+            if piece.position == [_y, _x]:
               moves = board.filter_moves_on_check(board.user_color, piece.get_moves(board))
               moves = [move['new_position'] for move in moves]
               piece_clicked = piece.type
+              piece_moves = moves
+              clicked_on_piece = True
+
+          if clicked_on_piece:
+            old_x, old_y = _x, _y
 
           draw_chessboard(board, moves=moves)
         if event.type == pygame.MOUSEBUTTONUP:
           x, y = pygame.mouse.get_pos()
           new_x, new_y = get_chess_square(SIZE, x, y)
-
-          if new_x != old_x or new_y != old_y:
+          if (new_x != old_x or new_y != old_y) and [new_y, new_x] in piece_moves:
             move = {
               "old_position": [old_y, old_x],
               "new_position": [new_y, new_x],
