@@ -85,6 +85,7 @@ def looping_cpu_vs_human():
 
   if color != WHITE:
     board.play_move()
+    draw_chessboard(board)
 
   piece_clicked = None
   piece_moves = []
