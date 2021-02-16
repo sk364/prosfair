@@ -152,29 +152,18 @@ def legal_knight_moves(board, color, position):
   color_positions = [piece.position for piece in board.pieces if piece.color == color]
 
   moves = []
-  if y + 2 < 8 and x + 1 < 8:
-    moves += [[y + 2, x + 1]]
-
-  if y + 1 < 8 and x + 2 < 8:
-    moves += [[y + 1, x + 2]]
-
-  if y - 1 > -1 and x + 2 < 8:
-    moves += [[y - 1, x + 2]]
-  
-  if y - 1 > -1 and x - 2 > -1:
-    moves += [[y - 1, x - 2]]
-
-  if y + 2 < 8 and x - 1 > -1:
-    moves += [[y + 2, x - 1]]
-
-  if y + 1 < 8 and x - 2 > -1:
-    moves += [[y + 1, x - 2]]
-
-  if y - 2 > -1 and x - 1 > -1:
-    moves += [[y - 2, x - 1]]
-
-  if y - 2 > -1 and x + 1 < 8:
-    moves += [[y - 2, x + 1]]   
+  for idx in range(2):
+    i, j = [1, 2] if idx == 0 else [2, 1]
+    if y + i < 8:
+      if x + j < 8:
+        moves += [[y + i, x + j]]
+      if x - j > -1:
+        moves += [[y + i, x - j]]
+    if y - i > -1:
+      if x + j < 8:
+        moves += [[y - i, x + j]]
+      if x - j > -1:
+        moves += [[y - i, x - j]]
 
   return [move for move in moves if move not in color_positions]
 
