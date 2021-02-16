@@ -73,8 +73,8 @@ def alpha_beta_pruning(board, color, depth):
       for _ in range(num_killed):
         data += '-1 1\n'
 
-  player = 16 if color == BLACK else 0
-
+  player = 16
+  print(data)
   proc = subprocess.Popen(
     ["ai/minimax", str(player), str(depth)],
     stdout=subprocess.PIPE,
@@ -86,7 +86,7 @@ def alpha_beta_pruning(board, color, depth):
   total = time.time() - st
   print(total)
 
-  old_pos, piece, x, y = out[0].decode('utf-8').split(" ")
+  old_pos, piece, x, y, score = out[0].decode('utf-8').split(" ")
   piece = piece_codes[int(piece) - player]
   x, y, old_pos = int(x), int(y), int(old_pos)
   old_y, old_x = [old_pos // 8, old_pos % 8]
@@ -96,7 +96,7 @@ def alpha_beta_pruning(board, color, depth):
     old_y, old_x = 7 - old_y, 7 - old_x
 
   move = {'color': color, 'piece': piece, 'new_position': [y, x], 'old_position': [old_y, old_x]}
-  print(move)
+  print(move, score)
 
   return move
 
