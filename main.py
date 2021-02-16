@@ -120,14 +120,14 @@ if __name__ == "__main__":
 
   funcs = {
     "Play v/s CPU" : gui.looping_cpu_vs_human,
-    # "2 Player Mode": gui.looping_human_vs_human,
+    "2 Player Mode": gui.looping_human_vs_human,
     "Watch the computer": gui.looping_cpu_vs_cpu,
     "Quit" : sys.exit
   }
 
   menu_items = (
     'Play v/s CPU',
-    # '2 Player Mode',
+    '2 Player Mode',
     'Watch the computer',
     'Quit'
   )

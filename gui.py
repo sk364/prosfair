@@ -14,7 +14,7 @@ from common.constants.pygame import (
   COLOR_BLUE,
   IMAGE_DIR
 )
-from common.constants import BLACK, WHITE
+from common.constants import BLACK, WHITE, OPPOSITE
 from common.helpers import get_chess_square, get_chess_square_reverse, get_chess_square_border
 
 pygame.init()
@@ -159,134 +159,55 @@ def looping_cpu_vs_cpu():
       # TODO: display message
       break
 
-# def looping_human_vs_human(board):
-#   global chessboards
 
-#   draw_chessboard(board)
+def looping_human_vs_human():
+  old_x = 0
+  old_y = 0
+  new_x = 0
+  new_y = 0
+  board = Board()
 
-#   cur = 0
-#   old_x = 0
-#   old_y = 0
-#   new_x = 0
-#   new_y = 0
+  draw_chessboard(board)
 
-#   color = "white"
-#   flag = 0
+  piece_clicked = None
+  piece_moves = []
+  game_over = False
+  while True:
+    for event in pygame.event.get():
+      if event.type == QUIT:
+        pygame.quit()
+        sys.exit()
+        pygame.display.update()
+      if not game_over:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+          x, y = pygame.mouse.get_pos()
+          _x, _y = get_chess_square(SIZE, x, y)
+          moves = []
 
-#   while True:
-#     for event in pygame.event.get():
-#       if event.type == QUIT:
-#         pygame.quit()
-#         sys.exit()
-#         pygame.display.update()
-#       if event.type == pygame.KEYDOWN:
-#         if event.key == pygame.K_RIGHT:
-#           cur = (cur + 1) % 3
-#           board = chessboards[cur]
-#         if event.key == pygame.K_LEFT:
-#           cur = (cur + 2) % 3
-#           board = chessboards[cur]
-#         draw_chessboard(board)
-#       if event.type == pygame.MOUSEBUTTONDOWN:
-#         if flag == 1:
-#           x,y= pygame.mouse.get_pos()
-#           new_x,new_y = get_chess_square(x,y//8)
-#           #print new_x,new_y
-#           valid = False
-#           for x in [color]:
-#             for k in board[x].keys():
-#               if board[x][k][1] == old_x and board[x][k][0] == old_y:
-#                 if "bishop" in k:
-#                   if [new_y,new_x] in rules.legal_bishop_moves(board,x,k): valid = True
-#                 elif "pawn" in k:
-#                   if [new_y,new_x] in rules.legal_pawn_moves(board,x,k):   valid = True
-#                 elif "knight" in k:
-#                   if [new_y,new_x] in rules.legal_knight_moves(board,x,k): valid = True
-#                 elif "rook" in k:
-#                   if [new_y,new_x] in rules.legal_rook_moves(board,x,k):   valid = True
-#                 elif "queen" in k:
-#                   if [new_y,new_x] in rules.legal_queen_moves(board,x,k):  valid = True 
-#                 elif "king" in k:
-#                   if [new_y,new_x] in rules.legal_king_moves(board,x,k): valid = True
+          clicked_on_piece = False
+          for piece in board.pieces:
+            if piece.position == [_y, _x]:
+              moves = board.filter_moves_on_check(board.user_color, piece.get_moves(board))
+              moves = [move['new_position'] for move in moves]
+              piece_clicked = piece.type
+              piece_moves = moves
+              clicked_on_piece = True
 
-#                 # if piece is moved to valid position then update the piece's coordinates and check if it is killing other piece
-#                 if valid and x == color:
-#                   board[x][k][1] = new_x
-#                   board[x][k][0] = new_y
-#                   killed_piece = None
-#                   for k,v in board[OPPOSITE[x]].items():
-#                           if v[0] == new_y and v[1] == new_x:
-#                                   killed_piece = k
+          if clicked_on_piece:
+            old_x, old_y = _x, _y
 
-#                   if killed_piece and (killed_piece in board[OPPOSITE[x]].keys()): del board[OPPOSITE[x]][killed_piece]
-
-
-
-
-#                   draw_chessboard(board)
-#                   color = OPPOSITE[color] 
-#                 break
-#           flag = 0
-#         else:
-#           x,y= pygame.mouse.get_pos()
-#           old_x,old_y = get_chess_square(x,y//8)
-#           p= []
-#           for x in [color]:
-#             for k in board[x].keys():
-#               if board[x][k][1] == old_x and board[x][k][0] == old_y:
-#                 #print k
-#                 if "bishop" in k:
-#                   p = rules.legal_bishop_moves(board,x,k)
-#                 elif "pawn" in k:
-#                   p = rules.legal_pawn_moves(board,x,k)
-#                 elif "knight" in k:
-#                   p = rules.legal_knight_moves(board,x,k)
-#                 elif "rook" in k:
-#                   p = rules.legal_rook_moves(board,x,k)
-#                 elif "queen" in k:
-#                   p = rules.legal_queen_moves(board,x,k)
-#                 elif "king" in k:
-#                   p = rules.legal_king_moves( board,x,k)
-
-#           draw_chessboard(board,p)
-#       if event.type == pygame.MOUSEBUTTONUP:
-#         x,y= pygame.mouse.get_pos()
-#         new_x,new_y = get_chess_square(x,y//8)
-                                 
-#         if new_x == old_x and new_y == old_y:
-#           flag = 1
-#           continue
-          
-#         else:
-#           valid = False
-#           for x in [color]:
-#             for k in board[x].keys():
-#               if board[x][k][1] == old_x and board[x][k][0] == old_y:
-#                 if "bishop" in k:
-#                   if [new_y,new_x] in rules.legal_bishop_moves(board,x,k): valid = True
-#                 elif "pawn" in k:
-#                   if [new_y,new_x] in rules.legal_pawn_moves(board,x,k):   valid = True
-#                 elif "knight" in k:
-#                   if [new_y,new_x] in rules.legal_knight_moves(board,x,k): valid = True
-#                 elif "rook" in k:
-#                   if [new_y,new_x] in rules.legal_rook_moves(board,x,k):   valid = True
-#                 elif "queen" in k:
-#                   if [new_y,new_x] in rules.legal_queen_moves(board,x,k):  valid = True
-#                 elif "king" in k:
-#                   if [new_y,new_x] in rules.legal_king_moves(board,x,k): valid = True
-
-#                 #if piece is moved to valid position then update the piece's coordinates and check if it is killing other piece
-#                 if valid and x == color:
-#                   board[x][k][1] = new_x
-#                   board[x][k][0] = new_y
-#                   killed_piece = None
-#                   for k,v in board[OPPOSITE[x]].items():
-#                     if v[0] == new_y and v[1] == new_x:
-#                       killed_piece = k
-
-#                   if killed_piece and (killed_piece in board[OPPOSITE[x]].keys()):
-#                     del board[OPPOSITE[x]][killed_piece]
-
-#                   draw_chessboard(board)
-#                   color = OPPOSITE[color]
-#                   break
+          draw_chessboard(board, moves=moves)
+        if event.type == pygame.MOUSEBUTTONUP:
+          x, y = pygame.mouse.get_pos()
+          new_x, new_y = get_chess_square(SIZE, x, y)
+          if (new_x != old_x or new_y != old_y) and [new_y, new_x] in piece_moves:
+            move = {
+              "old_position": [old_y, old_x],
+              "new_position": [new_y, new_x],
+              "piece": piece_clicked,
+              "color": board.side_to_move
+            }
+            is_over = board.play_move(move=move)
+            board.user_color = OPPOSITE[board.user_color]
+            board.flip()
+            draw_chessboard(board)
