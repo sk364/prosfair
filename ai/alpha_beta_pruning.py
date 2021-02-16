@@ -2,44 +2,107 @@ import subprocess
 import time
 
 from ai.cpu import evaluate_board
-from common.constants import OPPOSITE
+from common.constants import OPPOSITE, BLACK
+
 
 def alpha_beta_pruning(board, color, depth):
-  temp_str = \
-    "king queen bishop_1 bishop_2 knight_1 knight_2 rook_1 rook_2 pawn_1 pawn_2 pawn_3 pawn_4 pawn_5 pawn_6 pawn_7 pawn_8".split(" ")
+  data = ""
+  piece_order = ["k", "q", "b", "n", "r", "p"]
+  piece_codes = ["k", "q", "b", "b", "n", "n", "r", "r", "p", "p", "p", "p", "p", "p", "p", "p"]
 
-  data= ""
-  mm = {}
-  for i in range(len(temp_str)):
-    for army in board: 
-      xy = board[army][temp_str[i]] if temp_str[i] in board[army].keys() else [-1, 1]
-      data = data + str(xy[0]) +" "+ str(xy[1]) + "\n"
-      mm[i + (16 if army == "black" else 0)] = temp_str[i]
+  user_piece_positions = {
+    "k": [],
+    "q": [],
+    "b": [],
+    "n": [],
+    "r": [],
+    "p": []
+  }
+  cpu_piece_positions = {
+    "k": [],
+    "q": [],
+    "b": [],
+    "n": [],
+    "r": [],
+    "p": []
+  }
+  user_pieces = [_p for _p in board.pieces if _p.color != color]
+  cpu_pieces = [_p for _p in board.pieces if _p.color == color]
 
-  player = 0 if color == "white" else 16
+  for piece in user_pieces:
+    user_piece_positions[piece.type].append(piece.position)
 
-  proc = subprocess.Popen(["ai/minimax", str(player), str(depth) ],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+  for piece_type in piece_order:
+    positions = user_piece_positions[piece_type]
+    if piece_type == 'k' or piece_type == 'q':
+      if positions:
+        data += f'{positions[0][0]} {positions[0][1]}\n'
+      else:
+        data += '-1 1\n'
+    else:
+      if piece_type in ['b', 'n', 'r']:
+        num_killed = 2 - len(positions)
+      else:
+        num_killed = 8 - len(positions)
+
+      for position in positions:
+        data += f'{position[0]} {position[1]}\n'
+
+      for _ in range(num_killed):
+        data += '-1 1\n'
+
+  for piece in cpu_pieces:
+    cpu_piece_positions[piece.type].append(piece.position)
+
+  for piece_type in piece_order:
+    positions = cpu_piece_positions[piece_type]
+    if piece_type == 'k' or piece_type == 'q':
+      if positions:
+        data += f'{positions[0][0]} {positions[0][1]}\n'
+      else:
+        data += '-1 1\n'
+    else:
+      if piece_type in ['b', 'n', 'r']:
+        num_killed = 2 - len(positions)
+      else:
+        num_killed = 8 - len(positions)
+
+      for position in positions:
+        data += f'{position[0]} {position[1]}\n'
+
+      for _ in range(num_killed):
+        data += '-1 1\n'
+
+  player = 16
+  print(data)
+  proc = subprocess.Popen(
+    ["ai/minimax", str(player), str(depth)],
+    stdout=subprocess.PIPE,
+    stdin=subprocess.PIPE
+  )
 
   st = time.time()
   out = proc.communicate(data.encode("utf-8"))
   total = time.time() - st
   print(total)
 
-  piece, x, y = out[0].decode('utf-8').split(" ")
-  piece = mm[int(piece)]
-  x = int(x)
-  y = int(y)
+  old_pos, piece, x, y, score = out[0].decode('utf-8').split(" ")
+  piece = piece_codes[int(piece) - player]
+  x, y, old_pos = int(x), int(y), int(old_pos)
+  old_y, old_x = [old_pos // 8, old_pos % 8]
 
-  print(piece , x, y)
+  if player == 0:
+    y, x = 7 - y, 7 - x
+    old_y, old_x = 7 - old_y, 7 - old_x
 
-  return {
-    'color': "black",
-    'piece' : piece,
-    'new_position' : [y, x]
-  }
+  move = {'color': color, 'piece': piece, 'new_position': [y, x], 'old_position': [old_y, old_x]}
+  print(move, score)
+
+  return move
 
 
 def alpha_beta_pruning_native(board, color, depth):
+  print("Calculating...")
   st = time.time()
   moves_list = board.get_moves(color)
   moves_list = board.filter_moves_on_check(color, moves_list)
@@ -56,7 +119,7 @@ def alpha_beta_pruning_native(board, color, depth):
   for move in moves_list:
     clone_board = board.clone(move)
     score = alpha_beta(
-      clone_board, OPPOSITE[color], alpha, beta, depth - 1, isMin=True)
+      clone_board, OPPOSITE[color], alpha, beta, depth - 1, is_min=True)
     if score > best_score:
       best_move = move
       best_score = score
@@ -68,25 +131,25 @@ def alpha_beta_pruning_native(board, color, depth):
   return best_move
 
 
-def alpha_beta(board, color, alpha, beta, depth, isMin = False):
+def alpha_beta(board, color, alpha, beta, depth, is_min = False):
   if depth == 0:
-    return (-1 if isMin else 1) * evaluate_board(board)
+    return (-1 if is_min else 1) * evaluate_board(board)
 
   moves_list = board.get_moves(color)
   moves_list = board.filter_moves_on_check(color, moves_list)
 
-  score = float('inf') if isMin else float('-inf')
+  score = float('inf') if is_min else float('-inf')
   for move in moves_list:
     clone_board = board.clone(move)
-    if not isMin:
+    if not is_min:
       score = max(score, alpha_beta(
-        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isMin=True))
+        clone_board, OPPOSITE[color], alpha, beta, depth - 1, is_min=True))
       alpha = max(alpha, score)
       if beta <= alpha:
         return score
     else:
       score = min(score, alpha_beta(
-        clone_board, OPPOSITE[color], alpha, beta, depth - 1, isMin=False))
+        clone_board, OPPOSITE[color], alpha, beta, depth - 1, is_min=False))
       beta = min(beta, score)
       if beta <= alpha:
         return score

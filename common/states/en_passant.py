@@ -34,7 +34,7 @@ STATE = {
     "position": [6, 2],
   }, {
     "type": "p",
-    "position": [6, 3],
+    "position": [3, 3],
   }, {
     "type": "p",
     "position": [6, 4],
