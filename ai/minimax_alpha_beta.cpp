@@ -108,8 +108,33 @@ void print_vec_bitboard(vector<llu> v) {
 
 void print_move_vector(vector<move_piece> v) {
     for(int i=0; i < v.size(); i++)
-        cout << v[i].piece << " " << v[i].x << " "<< v[i].y << " , ";
+        cout << v[i].piece << " " << v[i].y << " "<< v[i].x << " , ";
     cout << endl;
+}
+
+
+void print_binary(llu x) {
+    bool binary[64];
+    int rem;
+    int i = 0;
+    llu temp = x;
+
+    for (i = 0; i < 64; i++) {
+        binary[i] = false;
+    }
+
+    i = 0;
+    while (x > 0) {
+        binary[i++] = x % 2;
+        x /= 2;
+    }
+
+    cout << temp << endl;
+    for (i = 63; i > -1; i--) {
+        cout << binary[i];
+    }
+
+    cout << endl << endl;
 }
 
   
@@ -404,23 +429,23 @@ llu moves_pawn(llu b, bool dir, bool attack) {
 
     llu res = 0;
 
-    if (dir) {
+    if (!dir) {
         if (y + 1 >= 0 and y + 1 <= 7) {
-            if (not attack)
-                res |= set_bit(x , y + 1);
-            if (attack)
+            if (attack) {
                 res |= set_bit(x - 1, y + 1);
-            if (attack)
                 res |= set_bit(x + 1, y + 1);
+            } else {
+                res |= set_bit(x , y + 1);
+            }
         }
     } else {
         if (y - 1 >= 0 and y - 1 <= 7) {
-            if (not attack)
-                res |= set_bit(x, y - 1);
-            if (attack)
+            if (attack) {
                 res |= set_bit(x - 1, y - 1);
-            if (attack)
                 res |= set_bit(x + 1, y - 1);
+            } else {
+                res |= set_bit(x, y - 1);
+            }
         }
     }
 
@@ -428,11 +453,38 @@ llu moves_pawn(llu b, bool dir, bool attack) {
 }
 
 
+llu moves_pawn_double_jump(llu b, bool dir, llu pawn_move_board) {
+    int p = find_pos(b);
+    int x = p % 8;
+    int y = p / 8;
+    if (p < 0) return return_llu();
+
+    if (!dir) {
+        if (y == 1) {
+            llu one_step = set_bit(x, y + 1);
+            llu can_double = pawn_move_board & one_step;
+            if (can_double) {
+                return set_bit(x, y + 2);
+            }
+        }
+    } else {
+        if (y == 6) {
+            llu one_step = set_bit(x, y - 1);
+            llu can_double = pawn_move_board & one_step;
+            if (can_double) {
+                return set_bit(x, y - 2);
+            }
+        }
+    }
+
+    return return_llu();
+}
+
+
 llu find_enemy_occupied_area(vector<llu> &board, int piece) {
     llu occupied_enemy_area = 0;
 
     for (int i=(piece < OKING ? OKING : KING); i <= (piece < OKING ? OPAWN8 : PAWN8); i++) {
-        cout << occupied_enemy_area << endl;
         occupied_enemy_area |= board[i];
     }
 
@@ -456,9 +508,17 @@ llu pawn_moves_wrapper(vector<llu> &board, int pawn) {
     llu occupied_friend_area = find_friend_occupied_area(board, pawn);
     pawn_attack_board = occupied_enemy_area & pawn_attack_board;
     llu pawn_move_board = (
-        moves_pawn(board[pawn], pawn < OKING ? true : false, false) & (~occupied_friend_area & ~occupied_enemy_area));
+        moves_pawn(board[pawn], pawn < OKING ? true : false, false) &
+        ~occupied_friend_area &
+        ~occupied_enemy_area
+    );
+    llu pawn_double_jump_board = (
+        moves_pawn_double_jump(board[pawn], pawn < OKING ? true : false, pawn_move_board) &
+        ~occupied_enemy_area &
+        ~occupied_friend_area
+    );
 
-    return pawn_attack_board | pawn_move_board;
+    return pawn_attack_board | pawn_move_board | pawn_double_jump_board;
 }
 
 
@@ -575,8 +635,8 @@ move_piece alpha_beta(vector<llu> &board, int army_king, int depth) {
     float alpha = -99999, beta = 99999;
     move_piece best_move = moves_list[0];
 
+    // print_move_vector(moves_list);
     for (int i=0; i < moves_list.size(); i++) {
-        cout << moves_list[i].piece << " " << moves_list[i].x << " " << moves_list[i].y << endl;
         // vector<llu> clone_board = generate_board(board, moves_list[i]);
         // float score = alpha_beta_min(clone_board, army_king < OKING ? OKING : KING, alpha, beta, depth - 1);
 
@@ -661,7 +721,8 @@ float alpha_beta_max(vector<llu> &board, int army_king, float alpha, float beta,
 int main(int argc, char *argv[]) {
     vector<llu> bb(32, 0);
 
-    int depth = atoi(argv[1]);
+    int player = atoi(argv[1]);
+    int depth = atoi(argv[2]);
 
     for (int i=0; i < 32; i++) {
         int x, y;
@@ -673,8 +734,8 @@ int main(int argc, char *argv[]) {
             bb[i] = return_llu();
     }
 
-    move_piece ans = alpha_beta(bb, OKING, depth);
-    cout << ans.piece << " " << ans.x << " " << ans.y << endl;
+    move_piece ans = alpha_beta(bb, player, depth);
+    cout << find_pos(bb[ans.piece]) << " " << ans.piece << " " << ans.x << " " << ans.y;
 
     return 0;
 }

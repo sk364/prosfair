@@ -1,4 +1,4 @@
-from ai.alpha_beta_pruning import alpha_beta_pruning_native as alpha_beta_pruning
+from ai.alpha_beta_pruning import alpha_beta_pruning # _native as alpha_beta_pruning
 from common import rules
 from common.constants import BLACK, OPPOSITE, WHITE, DEPTH
 from common.constants.pieces import PIECE_NAME_MAP, PIECE_PRIORITY_MAP, PIECE_SQUARE_MAP

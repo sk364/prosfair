@@ -2,11 +2,13 @@ import subprocess
 import time
 
 from ai.cpu import evaluate_board
-from common.constants import OPPOSITE
+from common.constants import OPPOSITE, BLACK
+
 
 def alpha_beta_pruning(board, color, depth):
   data = ""
   piece_order = ["k", "q", "b", "n", "r", "p"]
+  piece_codes = ["k", "q", "b", "b", "n", "n", "r", "r", "p", "p", "p", "p", "p", "p", "p", "p"]
 
   user_piece_positions = {
     "k": [],
@@ -71,11 +73,10 @@ def alpha_beta_pruning(board, color, depth):
       for _ in range(num_killed):
         data += '-1 1\n'
 
-  print(data)
-  player = 16
+  player = 16 if color == BLACK else 0
 
   proc = subprocess.Popen(
-    ["ai/minimax", str(depth)],
+    ["ai/minimax", str(player), str(depth)],
     stdout=subprocess.PIPE,
     stdin=subprocess.PIPE
   )
@@ -85,16 +86,19 @@ def alpha_beta_pruning(board, color, depth):
   total = time.time() - st
   print(total)
 
-  p = out[0].decode('utf-8').split(" ")
-  print(p)
-  # piece = mm[int(piece)]
-  # x = int(x)
-  # y = int(y)
+  old_pos, piece, x, y = out[0].decode('utf-8').split(" ")
+  piece = piece_codes[int(piece) - player]
+  x, y, old_pos = int(x), int(y), int(old_pos)
+  old_y, old_x = [old_pos // 8, old_pos % 8]
 
-  # print(piece, x, y)
+  if player == 0:
+    y, x = 7 - y, 7 - x
+    old_y, old_x = 7 - old_y, 7 - old_x
 
-  # # TODO: set old_position
-  # return {'color': color, 'piece': piece, 'new_position': [y, x], 'old_position': None}
+  move = {'color': color, 'piece': piece, 'new_position': [y, x], 'old_position': [old_y, old_x]}
+  print(move)
+
+  return move
 
 
 def alpha_beta_pruning_native(board, color, depth):
