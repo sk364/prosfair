@@ -1,4 +1,4 @@
-from ai.alpha_beta_pruning import alpha_beta_pruning # _native as alpha_beta_pruning
+from ai.alpha_beta_pruning import alpha_beta_pruning_native as alpha_beta_pruning
 from common import rules
 from common.constants import BLACK, OPPOSITE, WHITE, DEPTH
 from common.constants.pieces import PIECE_NAME_MAP, PIECE_PRIORITY_MAP, PIECE_SQUARE_MAP
@@ -81,7 +81,7 @@ class Board:
     return ""
 
   def __repr__(self):
-    return self.__str__()
+    return str(self)
 
   def flip(self):
     """Flips the board by updating each piece's position"""
@@ -94,24 +94,12 @@ class Board:
 
   def clone(self, move=None):
     board = Board(user_color=self.user_color)
+    board.side_to_move = self.side_to_move
     board.pieces = [
       Piece(type=piece.type, position=piece.position, color=piece.color) for piece in self.pieces]
 
     if move:
-      killed_piece_idx = None
-      for idx, piece in enumerate(board.pieces):
-        if piece.color == OPPOSITE[move["color"]] and piece.position == move['new_position']:
-          killed_piece_idx = idx
-          break
-
-      if killed_piece_idx:
-        del board.pieces[killed_piece_idx]
-
-      for piece in board.pieces:
-        if piece.color == move["color"] and piece.position == move["old_position"]:
-          piece.position = move["new_position"]
-          board._update_rook_position(piece, move)
-          break
+      board._update_position(move, is_clone_board=True)
 
     return board
 
@@ -177,7 +165,7 @@ class Board:
 
     self.pieces.append(Piece(type=upgrade_to, color=piece.color, position=piece.position))
 
-  def _update_position(self, move):
+  def _update_position(self, move, is_clone_board=False):
     for piece in self.pieces:
       if (
         piece.color == move["color"] and
@@ -223,11 +211,13 @@ class Board:
         self._kill_pawn_on_en_passant(self.side_to_move, move["new_position"])
 
         self.moves.append({ **move, "piece": piece })
-        self.__str__()
 
-        self.side_to_move = OPPOSITE[self.side_to_move]
+        if is_clone_board is False:
+          str(self)
+          self.side_to_move = OPPOSITE[self.side_to_move]
+          return self.game_over()
 
-        return self.game_over()
+        return
     return
 
   def play_move(self, move=None):
@@ -250,7 +240,7 @@ class Board:
 
   def in_checkmate(self, color=None):
     if not color:
-      color = self.side_to_move
+      color = OPPOSITE[self.side_to_move]
 
     if self.in_check(color) is False:
       return False
@@ -264,8 +254,8 @@ class Board:
 
   def in_stalemate(self):
     """If there are no moves for any of the armies and there is no check, it's a stalemate!"""
-    moves = self.get_moves(self.side_to_move)
-    return len(moves) == 0 and self.in_check(self.side_to_move) is False
+    moves = self.get_moves(OPPOSITE[self.side_to_move])
+    return len(moves) == 0 and self.in_check(OPPOSITE[self.side_to_move]) is False
 
   def in_draw(self):
     color = WHITE
@@ -287,7 +277,7 @@ class Board:
 
   def game_over(self):
     if self.in_checkmate():
-      return { "who_won": self.side_to_move, "by": "checkmate" }
+      return { "who_won": OPPOSITE[self.side_to_move], "by": "checkmate" }
 
     if self.in_stalemate():
       return { "who_won": None, "by": "stalemate" }
@@ -297,7 +287,7 @@ class Board:
 
     return
 
-  def get_moves(self, color, filter_piece=None):
+  def get_moves(self, color, filter_piece=None, is_opposition=False):
     pieces = [piece for piece in self.pieces if piece.color == color]
     moves = []
 
@@ -322,7 +312,7 @@ class Board:
       ):
         moves += [
           {"color": color, "piece": piece.type, "old_position": piece.position, "new_position": move}
-          for move in legal_moves(self, color, piece.position)
+          for move in legal_moves(self, color, piece.position, is_opposition=is_opposition)
         ]
     return moves
 
