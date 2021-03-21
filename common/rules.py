@@ -1,7 +1,12 @@
-def legal_king_moves(board, color, position):
+from common.constants import OPPOSITE
+
+
+def legal_king_moves(board, color, position, **kwargs):
   y, x = position
 
   color_positions = [piece.position for piece in board.pieces if piece.color == color]
+  if not kwargs.get('is_opposition'):
+    opp_color_moves = board.get_moves(OPPOSITE[color], filter_piece=None, is_opposition=True)
 
   moves = []
   for i in range(3):
@@ -11,22 +16,27 @@ def legal_king_moves(board, color, position):
           moves += [[y + i - 1, x + j - 1]]
 
   if board.can_castle_king_side:
-    if [y, x + 1] not in color_positions and [y, x + 2] not in color_positions:
+    if (
+      [y, x + 1] not in color_positions and
+      [y, x + 2] not in color_positions and
+      [y, x + 1] not in opp_color_moves and
+      [y, x + 2] not in opp_color_moves
+    ):
       moves += [[y, x + 2]]
 
   if board.can_castle_queen_side:
     can_castle = True
     for i in range(3):
-      if [y, x - i] in color_positions:
+      if [y, x - i] in color_positions and [y, x - i] not in opp_color_moves:
         can_castle = False
+
     if can_castle:
       moves += [[y, x - 2]]
 
-  moves = [move for move in moves if move not in color_positions]
-  return moves
+  return [move for move in moves if move not in color_positions]
 
 
-def legal_pawn_moves(board, color, position):
+def legal_pawn_moves(board, color, position, **kwargs):
   y, x = position
 
   opp_color_positions = [piece.position for piece in board.pieces if piece.color != color]
@@ -96,7 +106,7 @@ def legal_pawn_moves(board, color, position):
   return [move for move in moves if move not in color_positions]
 
 
-def legal_bishop_moves(board, color, position):
+def legal_bishop_moves(board, color, position, **kwargs):
   y, x = position
 
   opp_color_positions = [piece.position for piece in board.pieces if piece.color != color]
@@ -146,7 +156,7 @@ def legal_bishop_moves(board, color, position):
   return [move for move in moves if move not in color_positions]
 
 
-def legal_knight_moves(board, color, position):
+def legal_knight_moves(board, color, position, **kwargs):
   y, x = position
 
   color_positions = [piece.position for piece in board.pieces if piece.color == color]
@@ -168,7 +178,7 @@ def legal_knight_moves(board, color, position):
   return [move for move in moves if move not in color_positions]
 
 
-def legal_rook_moves(board, color, position):
+def legal_rook_moves(board, color, position, **kwargs):
   y, x = position
 
   opp_color_positions = [piece.position for piece in board.pieces if piece.color != color]
@@ -218,7 +228,7 @@ def legal_rook_moves(board, color, position):
   return [move for move in moves if move not in color_positions]
 
 
-def legal_queen_moves(board, color, position):
+def legal_queen_moves(board, color, position, **kwargs):
   color_positions = [piece.position for piece in board.pieces if piece.color == color]
   moves = (
     legal_rook_moves(board, color, position) +
