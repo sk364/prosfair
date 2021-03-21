@@ -129,7 +129,7 @@ def looping_cpu_vs_human():
             draw_chessboard(board)
             if is_over:
               # TODO: display message
-              print("Game Over!")
+              print(is_over)
               game_over = True
               break
             elif board.user_color != board.side_to_move:
@@ -137,7 +137,7 @@ def looping_cpu_vs_human():
               draw_chessboard(board)
               if is_over:
                 # display message
-                print("Game Over!")
+                print(is_over)
                 game_over = True
                 break
 
