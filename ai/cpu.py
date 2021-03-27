@@ -24,17 +24,11 @@ def get_pawn_counts(board, color):
   for pawn in pawns:
     y, x = pawn.position
 
-    if board.user_color != color:
-      if [y + 1, x] in opposite_army_positions:
-        if (
-          [y + 1, x + 1] not in opposite_army_positions and
-          [y + 1, x - 1] not in opposite_army_positions
-        ):
-          pawn_counts["blocked"] += 1
-    elif [y - 1, x] in opposite_army_positions:
+    one_step_ahead = y + 1 if board.user_color != color else y - 1
+    if [one_step_ahead, x] in opposite_army_positions:
       if (
-        [y - 1, x + 1] not in opposite_army_positions and
-        [y - 1, x - 1] not in opposite_army_positions
+        [one_step_ahead, x + 1] not in opposite_army_positions and
+        [one_step_ahead, x - 1] not in opposite_army_positions
       ):
         pawn_counts["blocked"] += 1
 
@@ -59,8 +53,8 @@ def get_pawn_counts(board, color):
 
 def compute_piece_value(board, color):
   sum_of_pieces = 0
-  for piece in [piece for piece in board.pieces if piece.color == color]:
-    sum_of_pieces += piece.get_value(board.user_color)
+  for piece in [p for p in board.pieces if p.color == color]:
+    sum_of_pieces += piece.get_value(color)
   return sum_of_pieces
 
 
@@ -76,6 +70,8 @@ def evaluate_board(board):
   evaluates the board using
    - piece values
    - piece square tables
+   - pawn structure
+   - mobility of pieces
   """
   color = OPPOSITE[board.user_color]
   if board.in_checkmate(color):

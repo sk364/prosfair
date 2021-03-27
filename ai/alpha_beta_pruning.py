@@ -74,7 +74,7 @@ def alpha_beta_pruning(board, color, depth):
         data += '-1 1\n'
 
   player = 16
-  print(data)
+  # print(data)
   proc = subprocess.Popen(
     ["ai/minimax", str(player), str(depth)],
     stdout=subprocess.PIPE,
@@ -86,6 +86,7 @@ def alpha_beta_pruning(board, color, depth):
   total = time.time() - st
   print(total)
 
+  print(out[0].decode('utf-8').split(" "))
   old_pos, piece, x, y, score = out[0].decode('utf-8').split(" ")
   piece = piece_codes[int(piece) - player]
   x, y, old_pos = int(x), int(y), int(old_pos)
@@ -118,8 +119,7 @@ def alpha_beta_pruning_native(board, color, depth):
 
   for move in moves_list:
     clone_board = board.clone(move)
-    score = alpha_beta(
-      clone_board, OPPOSITE[color], alpha, beta, depth - 1, is_min=True)
+    score = alpha_beta_min(clone_board, OPPOSITE[color], alpha, beta, depth - 1)
     if score > best_score:
       best_move = move
       best_score = score
@@ -131,27 +131,43 @@ def alpha_beta_pruning_native(board, color, depth):
   return best_move
 
 
-def alpha_beta(board, color, alpha, beta, depth, is_min = False):
+def alpha_beta_min(board, color, alpha, beta, depth):
   if depth == 0:
-    return (-1 if is_min else 1) * evaluate_board(board)
+    return evaluate_board(board)
 
   moves_list = board.get_moves(color)
   moves_list = board.filter_moves_on_check(color, moves_list)
 
-  score = float('inf') if is_min else float('-inf')
+  score = float('inf')
   for move in moves_list:
     clone_board = board.clone(move)
-    if not is_min:
-      score = max(score, alpha_beta(
-        clone_board, OPPOSITE[color], alpha, beta, depth - 1, is_min=True))
-      alpha = max(alpha, score)
-      if beta <= alpha:
-        return score
-    else:
-      score = min(score, alpha_beta(
-        clone_board, OPPOSITE[color], alpha, beta, depth - 1, is_min=False))
-      beta = min(beta, score)
-      if beta <= alpha:
-        return score
 
+    score = min(
+      score,
+      alpha_beta_max(clone_board, OPPOSITE[color], alpha, beta, depth - 1)
+    )
+    beta = min(beta, score)
+    if beta <= alpha:
+      return score
+  return score
+
+
+def alpha_beta_max(board, color, alpha, beta, depth):
+  if depth == 0:
+    return evaluate_board(board)
+
+  moves_list = board.get_moves(color)
+  moves_list = board.filter_moves_on_check(color, moves_list)
+
+  score = float('-inf')
+  for move in moves_list:
+    clone_board = board.clone(move)
+
+    score = max(
+      score,
+      alpha_beta_min(clone_board, OPPOSITE[color], alpha, beta, depth - 1)
+    )
+    alpha = max(score, alpha)
+    if beta <= alpha:
+      return score
   return score

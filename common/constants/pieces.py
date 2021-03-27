@@ -8,12 +8,12 @@ PIECE_NAME_MAP = {
 }
 
 PIECE_PRIORITY_MAP = {
-  "b": 30,
-  "k": 900,
-  "n": 30,
-  "p": 10,
-  "q": 90,
-  "r": 50
+  "b": 3,
+  "k": 0,
+  "n": 3,
+  "p": 1,
+  "q": 9,
+  "r": 5
 }
 
 PIECE_SQUARE_MAP = {
