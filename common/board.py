@@ -45,6 +45,7 @@ class Piece:
 
     return float(PIECE_PRIORITY_MAP[self.type]) + float(PIECE_SQUARE_MAP[self.type][y][x])
 
+
 class Board:
   def __init__(self, user_color=WHITE):
     pieces = []
@@ -66,7 +67,7 @@ class Board:
         found = False
         for piece in self.pieces:
           if piece.position[1] == col_idx and piece.position[0] == row_idx:
-            board_str += f'{piece.type} | '
+            board_str += f'{piece.type if piece.color == self.side_to_move else piece.type.upper()} | '
             found = True
             break
         if not found:
@@ -75,7 +76,7 @@ class Board:
     print(f'{self.side_to_move}:')
     print(board_str)
     print(", ".join([
-      f'{move["piece"].type.upper()} ({move["piece"].get_actual_position(self.user_color)})'
+      f'{move["piece"].type.upper()} ({move["piece"].get_actual_position(self.side_to_move)})'
       for move in self.moves
     ]))
     return ""
@@ -96,7 +97,9 @@ class Board:
     board = Board(user_color=self.user_color)
     board.side_to_move = self.side_to_move
     board.pieces = [
-      Piece(type=piece.type, position=piece.position, color=piece.color) for piece in self.pieces]
+      Piece(type=piece.type, position=piece.position, color=piece.color)
+      for piece in self.pieces
+    ]
 
     if move:
       board._update_position(move, is_clone_board=True)

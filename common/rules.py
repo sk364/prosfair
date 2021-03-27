@@ -7,6 +7,8 @@ def legal_king_moves(board, color, position, **kwargs):
   color_positions = [piece.position for piece in board.pieces if piece.color == color]
   if not kwargs.get('is_opposition'):
     opp_color_moves = board.get_moves(OPPOSITE[color], filter_piece=None, is_opposition=True)
+  else:
+    opp_color_moves = []
 
   moves = []
   for i in range(3):
