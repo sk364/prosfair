@@ -53,8 +53,8 @@ def get_pawn_counts(board, color):
 
 def compute_piece_value(board, color):
   sum_of_pieces = 0
-  for piece in [piece for piece in board.pieces if piece.color == color]:
-    sum_of_pieces += piece.get_value(board.user_color)
+  for piece in [p for p in board.pieces if p.color == color]:
+    sum_of_pieces += piece.get_value(color)
   return sum_of_pieces
 
 

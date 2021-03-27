@@ -138,16 +138,18 @@ def alpha_beta_min(board, color, alpha, beta, depth):
   moves_list = board.get_moves(color)
   moves_list = board.filter_moves_on_check(color, moves_list)
 
+  score = float('inf')
   for move in moves_list:
     clone_board = board.clone(move)
-    score = alpha_beta_max(clone_board, OPPOSITE[color], alpha, beta, depth - 1)
-    if score <= alpha:
-      return alpha
 
-    if score < beta:
-      beta = score
-
-  return beta
+    score = min(
+      score,
+      alpha_beta_max(clone_board, OPPOSITE[color], alpha, beta, depth - 1)
+    )
+    beta = min(beta, score)
+    if beta <= alpha:
+      return score
+  return score
 
 
 def alpha_beta_max(board, color, alpha, beta, depth):
@@ -157,13 +159,15 @@ def alpha_beta_max(board, color, alpha, beta, depth):
   moves_list = board.get_moves(color)
   moves_list = board.filter_moves_on_check(color, moves_list)
 
+  score = float('-inf')
   for move in moves_list:
     clone_board = board.clone(move)
-    score = alpha_beta_min(clone_board, OPPOSITE[color], alpha, beta, depth - 1)
-    if score >= beta:
-      return beta
 
-    if score > alpha:
-      alpha = score
-
-  return alpha
+    score = max(
+      score,
+      alpha_beta_min(clone_board, OPPOSITE[color], alpha, beta, depth - 1)
+    )
+    alpha = max(score, alpha)
+    if beta <= alpha:
+      return score
+  return score
