@@ -63,9 +63,77 @@ inline llu hasher(vector<llu> &);
 vector<move_piece> get_all_moves(vector<llu> &, int);
 vector<llu> generate_board(vector<llu> &, move_piece);
 
+float PAWN_SQUARE_TABLE[8][8] = {
+    {0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0},
+    {5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0},
+    {1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0},
+    {0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5},
+    {0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0},
+    {0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5},
+    {0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5},
+    {0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0}
+};
+
+float KNIGHT_SQUARE_TABLE[8][8] = {
+    {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0},
+    {-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0},
+    {-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0},
+    {-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0},
+    {-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0},
+    {-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0},
+    {-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0},
+    {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0}
+};
+
+float BISHOP_SQUARE_TABLE[8][8] = {
+    { -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0},
+    { -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0},
+    { -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0},
+    { -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0},
+    { -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0},
+    { -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0},
+    { -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0},
+    { -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0}
+};
+
+float QUEEN_SQUARE_TABLE[8][8] = {
+    { -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0},
+    { -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0},
+    { -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0},
+    { -0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5},
+    {  0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5},
+    { -1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0},
+    { -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0},
+    { -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0}
+};
+
+float ROOK_SQUARE_TABLE[8][8] = {
+    {  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0},
+    {  0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5},
+    { -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5},
+    { -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5},
+    { -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5},
+    { -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5},
+    { -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5},
+    {  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0}
+};
+
+float KING_SQUARE_TABLE[8][8] = {
+    { -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+    { -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+    { -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+    { -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+    { -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0},
+    { -1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0},
+    {  2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 },
+    {  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 }
+};
+
+int cpu_player = 16;
+
 
 int opposite(int army) {
-    return army < OKING ? KING : OKING;
+    return army < OKING ? OKING : KING;
 }
 
 
@@ -101,7 +169,7 @@ void pretty_print_board(vector<llu> board) {
     for (int i=0; i < 8; i++, putchar('\n')) {
         for (int j=0; j < 8; j++, putchar(' ')) {
             if (temp[i * 8 + j] == -1)
-                cout << "00";
+                cout << "__";
             else {
                 if (temp[i * 8 + j] < 10 or temp[i * 8 + j] == 16)
                     cout << "0";
@@ -125,7 +193,7 @@ void print_vec_bitboard(vector<llu> v) {
 
 void print_move_vector(vector<move_piece> v) {
     for(int i=0; i < v.size(); i++)
-        cout << v[i].piece << " " << v[i].y << " "<< v[i].x << ", ";
+        cout << v[i].piece << " " << v[i].y << " "<< v[i].x << " | ";
     cout << endl;
 }
 
@@ -159,7 +227,7 @@ inline llu hasher(vector<llu> &v) {
     llu hash = 0;
 
     for (int i=0; i < v.size(); i++)
-        hash = v[i] + 0x9e3779b9 + hash << 6 + hash >> 2;
+        hash = v[i] + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 
     return hash;
 }
@@ -197,14 +265,55 @@ inline float piece_priority(int piece) {
         case OROOK2: return 50;
     }
 
-    for (int i=PAWN1; i <= PAWN8; i++)
-        if (piece == i)
-            return 10;
+    if (piece >= PAWN1 and piece <= PAWN8)
+        return 10;
 
-    for (int i=OPAWN1; i <= OPAWN8; i++)
-        if (piece == i)
-            return 10;
+    if (piece >= OPAWN1 and piece <= OPAWN8)
+        return 10;
+
     return 0;
+}
+
+
+inline float piece_position_value(int piece, llu position) {
+    int p = find_pos(position);
+    if (p < 0) return 0.0;
+
+    int y = p / 8;
+    int x = p % 8;
+
+    if (cpu_player == 16) {
+        y = 7 - y;
+        x = 7 - x;
+    }
+
+    switch(piece) {
+        case KING:  
+        case OKING: return KING_SQUARE_TABLE[y][x];
+        
+        case QUEEN:     
+        case OQUEEN: return QUEEN_SQUARE_TABLE[y][x];
+
+        case BISHOP1:
+        case BISHOP2:
+        case OBISHOP1:
+        case OBISHOP2: return BISHOP_SQUARE_TABLE[y][x];
+
+        case KNIGHT1:
+        case KNIGHT2:
+        case OKNIGHT1:
+        case OKNIGHT2: return KNIGHT_SQUARE_TABLE[y][x];
+
+        case ROOK1:
+        case ROOK2:
+        case OROOK1:
+        case OROOK2: return ROOK_SQUARE_TABLE[y][x];
+    }
+
+    if ((piece >= PAWN1 and piece <= PAWN8) or (piece >= OPAWN1 and piece <= OPAWN8))
+        return PAWN_SQUARE_TABLE[y][x];
+
+    return 0.0;
 }
 
 
@@ -271,11 +380,11 @@ llu moves_wrapper_2(vector<llu> &b, int piece) {
 
 llu moves_king(llu b) {
     int p  = find_pos(b);
-    if (p < 0) return return_llu();
+    if (p < 0)
+        return return_llu();
 
     int x = p % 8;
     int y = p / 8;
-
 
     llu res = 0;
 
@@ -440,6 +549,7 @@ llu moves_rook(vector<llu> &board, llu b) {
 
 
 llu moves_pawn(llu b, bool dir, bool attack) {
+    // TODO: en passant
     int p = find_pos(b);
     int x = p % 8;
     int y = p / 8;
@@ -617,7 +727,8 @@ vector<move_piece> get_all_moves(vector<llu> &board, int army_king) {
 }
 
 
-vector<llu> generate_board(vector<llu> & board,move_piece m) {
+vector<llu> generate_board(vector<llu> &board, move_piece m) {
+    // TODO: check if move is castling or not or pawn is promoted or not or pawn kills another pawn by en passant
     vector<llu> new_board(board);
     for (int i=opposite(m.piece); i <= ((m.piece < OKING) ? OPAWN8 : PAWN8); i++) {
         if (m.x == find_pos(new_board[i]) % 8 and m.y == find_pos(new_board[i]) / 8 ) {
@@ -631,22 +742,156 @@ vector<llu> generate_board(vector<llu> & board,move_piece m) {
 }
 
 
-float evaluate_board(vector<llu> &board, int army_king) {
-    llu board_hash = hash_pair(hasher(board), army_king);
+float sum_of_pieces(vector<llu> board, int army_king) {
+    float sum = 0.0;
+    for (int i=army_king; i <= (army_king < OKING ? PAWN8 : OPAWN8); i++) {
+        if (board[i] != 0) {
+            sum += (piece_priority(i) + piece_position_value(i, board[i]));
+        }
+    }
+    return sum;
+}
+
+
+int compute_mobility(vector<llu> board, int army_king) {
+    vector<move_piece> moves_list = get_all_moves(board, army_king);
+    return moves_list.size();
+}
+
+
+int count_doubled_pawns(vector<llu> board, int army_king) {
+    int doubled_pawns = 0;
+    for (int i=8 + army_king; i <= (army_king < OKING ? PAWN8 : OPAWN8); i++) {
+        int pos = find_pos(board[i]);
+        if (pos < 0)
+            continue;
+
+        int y = pos / 8;
+        int x = pos % 8;
+
+        llu one_step_ahead = set_bit(x, y + 1);
+        llu one_step_back = set_bit(x, y - 1);
+        for (int j=8 + army_king; j <= (army_king < OKING ? PAWN8: OPAWN8); j++) {
+            if (i != j) {
+                if (one_step_ahead == board[j] or one_step_back == board[j]) {
+                    doubled_pawns++;
+                    break;
+                }
+            }
+        }
+    }
+
+    return doubled_pawns;
+}
+
+
+int count_blocked_pawns(vector<llu> board, int army_king) {
+    int blocked_pawns = 0;
+    for (int i=8 + army_king; i <= (army_king < OKING ? PAWN8 : OPAWN8); i++) {
+        int pos = find_pos(board[i]);
+        if (pos < 0)
+            continue;
+
+        int y = pos / 8;
+        int x = pos % 8;
+
+        int one_step_ahead = cpu_player != army_king ? y + 1 : y - 1;
+        llu pos_one_ahead = set_bit(x, one_step_ahead);
+        for (int j=opposite(army_king); j < 16 + opposite(army_king); j++) {
+            if (board[j] == pos_one_ahead) {
+                llu pos_left_dia = set_bit(x - 1, one_step_ahead);
+                llu pos_right_dia = set_bit(x + 1, one_step_ahead);
+
+                bool exists = false;
+                for (int k=opposite(army_king); k < 16 + opposite(army_king); k++) {
+                    if (board[k] == pos_left_dia or board[k] == pos_right_dia) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    blocked_pawns++;
+                }
+            }
+        }
+    }
+
+    return blocked_pawns;
+}
+
+
+tuple <int, int> count_misc_pawns(vector<llu> board, int army_king) {
+    int isolated_pawns = 0;
+    int connected_pawns = 0;
+
+    for (int i=8 + army_king; i <= (army_king < OKING ? PAWN8 : OPAWN8); i++) {
+        int pos = find_pos(board[i]);
+        if (pos < 0)
+            continue;
+
+        int y = pos / 8;
+        int x = pos % 8;
+
+        for (int j=-1; j <= 1; j++) {
+            for (int k=-1; k <= 1; k++) {
+                if (not (j == k and j == 0)) {
+                    llu _pos = set_bit(x + j, y + k);
+                    bool found = false;
+                    for (int l=8 + army_king; l <= (army_king < OKING ? PAWN8 : OPAWN8); l++) {
+                        if (l != i and _pos == board[l]) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) {
+                        connected_pawns += 1;
+                    } else {
+                        isolated_pawns += 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return make_pair(isolated_pawns, connected_pawns);
+}
+
+
+float evaluate_board(vector<llu> &board) {
+    llu board_hash = hash_pair(hasher(board), cpu_player);
 
     if (evaluate_board_memo.find(board_hash) != evaluate_board_memo.end())
         return evaluate_board_memo[board_hash];
     else {
-        if (in_checkmate(board, army_king))
+        if (in_checkmate(board, cpu_player))
             return -99999;
-        if (in_checkmate(board, opposite(army_king)))
+        if (in_checkmate(board, opposite(cpu_player)))
             return 99999;
 
-        float sum = 0.0;
-        for(int i = KING; i < OKING; i++)
-            sum += ((board[i] != return_llu()) - (board[i + OKING] != return_llu())) * piece_priority(i);
+        float sum_of_pieces1 = sum_of_pieces(board, cpu_player);
+        float sum_of_pieces2 = sum_of_pieces(board, opposite(cpu_player));
+        int mobility1 = compute_mobility(board, cpu_player);
+        int mobility2 = compute_mobility(board, opposite(cpu_player));
+        int num_doubled_pawns1 = count_doubled_pawns(board, cpu_player);
+        int num_blocked_pawns1 = count_blocked_pawns(board, cpu_player);
+        int num_isolated_pawns1, num_connected_pawns1;
+        tie(num_isolated_pawns1, num_connected_pawns1) = count_misc_pawns(board, cpu_player);
+        int num_doubled_pawns2 = count_doubled_pawns(board, opposite(cpu_player));
+        int num_blocked_pawns2 = count_blocked_pawns(board, opposite(cpu_player));
+        int num_isolated_pawns2, num_connected_pawns2;
+        tie(num_isolated_pawns2, num_connected_pawns2) = count_misc_pawns(board, opposite(cpu_player));
 
-        return sum;
+        return evaluate_board_memo[board_hash] = (
+            (sum_of_pieces1 - sum_of_pieces2) +
+            (0.1 * (mobility1 - mobility2)) -
+            (
+                0.5 * (
+                    (num_isolated_pawns1 - num_isolated_pawns2) +
+                    (num_blocked_pawns1 - num_blocked_pawns2) +
+                    (num_doubled_pawns1 - num_doubled_pawns2)
+                )
+            )
+        );
     }
 }
 
@@ -664,6 +909,8 @@ move_piece alpha_beta(vector<llu> &board, int army_king, int depth, float &best_
         vector<llu> clone_board = generate_board(board, moves_list[i]);
         float score = alpha_beta_min(clone_board, opposite(army_king), alpha, beta, depth - 1);
 
+        // cout << moves_list[i].piece << " " << moves_list[i].y << " " << moves_list[i].x << endl;
+        // cout << score << endl << endl;
         if (score > best_score) {
             best_move = moves_list[i];
             best_score = score;
@@ -676,59 +923,53 @@ move_piece alpha_beta(vector<llu> &board, int army_king, int depth, float &best_
     
 float alpha_beta_min(vector<llu> &board, int army_king, float alpha, float beta, int depth) {
     if (depth == 0)
-        return -evaluate_board(board, army_king);
+        return evaluate_board(board);
 
     llu board_hash = hasher(board);
 
-    if (min_play_memo.find(board_hash) != min_play_memo.end()) {
+    if (min_play_memo.find(board_hash) != min_play_memo.end())
         return min_play_memo[board_hash];
-    } else {
-        vector<move_piece> moves_list = get_all_moves(board, army_king);
 
-        float score = 99999;
+    vector<move_piece> moves_list = get_all_moves(board, army_king);
 
-        for (int i=0; i < moves_list.size(); i++) {
-            vector<llu> clone_board = generate_board(board, moves_list[i]);
-            score = min(
-                score,
-                alpha_beta_max(clone_board, opposite(army_king), alpha, beta, depth - 1)
-            );
+    float score = 99999;
+    for (int i=0; i < moves_list.size(); i++) {
+        vector<llu> clone_board = generate_board(board, moves_list[i]);
+        score = alpha_beta_max(clone_board, opposite(army_king), alpha, beta, depth - 1);
 
-            beta = min(score, beta);
-            if (beta <= alpha)
-                return score;
-        }
-        return score;
+        if (score <= alpha)
+            return alpha;
+
+        if (score < beta)
+            beta = score;
     }
+    return min_play_memo[board_hash] = beta;
 }
 
     
 float alpha_beta_max(vector<llu> &board, int army_king, float alpha, float beta, int depth) {
     if (depth == 0)
-        return evaluate_board(board, army_king);
+        return evaluate_board(board);
 
     llu board_hash = hasher(board);
 
     if (max_play_memo.find(board_hash) != max_play_memo.end())
         return max_play_memo[board_hash];
-    else {
-        vector<move_piece> moves_list = get_all_moves(board, army_king);
 
-        float score = -99999;
+    vector<move_piece> moves_list = get_all_moves(board, army_king);
 
-        for (int i=0; i < moves_list.size(); i++) {
-            vector<llu> clone_board = generate_board(board, moves_list[i]);
-            score = max(
-                score,
-                alpha_beta_min(clone_board, opposite(army_king), alpha, beta, depth - 1)
-            );
-            alpha = max(score, alpha);
+    float score = -99999;
+    for (int i=0; i < moves_list.size(); i++) {
+        vector<llu> clone_board = generate_board(board, moves_list[i]);
+        score = alpha_beta_min(clone_board, opposite(army_king), alpha, beta, depth - 1);
 
-            if (beta <= alpha)
-                return score;   
-        }
-        return score;
+        if (score >= beta)
+            return beta;
+
+        if (score > alpha)
+            alpha = score;
     }
+    return max_play_memo[board_hash] = alpha;
 }
 
 
@@ -737,6 +978,8 @@ int main(int argc, char *argv[]) {
 
     int player = atoi(argv[1]);
     int depth = atoi(argv[2]);
+
+    cpu_player = player;
 
     for (int i=0; i < 32; i++) {
         int x, y;
