@@ -11,7 +11,7 @@ from common.constants.pygame import COLOR_WHITE, SIZE, BACKGROUND_FILE_PATH
 
 pygame.init()
 
- 
+
 class MenuItem(pygame.font.Font):
   def __init__(self, text, font=None, font_size=48, font_color=COLOR_WHITE, pos=(0, 0)):
     pos_x, pos_y = pos
@@ -26,12 +26,12 @@ class MenuItem(pygame.font.Font):
     self.pos_x = pos_x
     self.pos_y = pos_y
     self.position = pos_x, pos_y
- 
+
   def set_position(self, x, y):
     self.position = (x, y)
     self.pos_x = x
     self.pos_y = y
- 
+
   def set_font_color(self, rgb_tuple):
     self.font_color = rgb_tuple
     self.label = self.render(self.text, 1, self.font_color)
@@ -42,32 +42,32 @@ class MenuItem(pygame.font.Font):
       (posx >= self.pos_x and posx <= self.pos_x + self.width) and
       (posy >= self.pos_y and posy <= self.pos_y + self.height)
     )
- 
- 
+
+
 class GameMenu():
   def __init__(self, screen, items, funcs, bg_color=(0,0,0), font=None, font_size=30, font_color=(255, 255, 255)):
     self.screen = screen
     self.scr_width = self.screen.get_rect().width
     self.scr_height = self.screen.get_rect().height
     self.funcs = funcs
-   
+
     self.bg_color = bg_color
     self.clock = pygame.time.Clock()
-   
+
     self.items = []
     for index, item in enumerate(items):
       menu_item = MenuItem(item)
-   
+
       t_h = len(items) * menu_item.height
       pos_x = (self.scr_width / 2) - (menu_item.width / 2)
 
       pos_y = (self.scr_height / 2) - (t_h / 2) + ((index * 2) + index * menu_item.height)
- 
+
       menu_item.set_position(pos_x, pos_y)
       self.items.append(menu_item)
     self.mouse_is_visible = True
     self.cur_item = None
-   
+
   def set_mouse_visibility(self):
     pygame.mouse.set_visible(bool(self.mouse_is_visible))
 
@@ -103,7 +103,8 @@ class GameMenu():
           self.screen.blit(item.label, item.position)
 
       pygame.display.flip()
- 
+
+
 class Background(pygame.sprite.Sprite):
   def __init__(self, image_file, location):
     pygame.sprite.Sprite.__init__(self)

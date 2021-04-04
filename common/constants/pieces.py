@@ -1,3 +1,5 @@
+from common import rules
+
 PIECE_NAME_MAP = {
   "p": "Pawn",
   "r": "Rook",
@@ -77,4 +79,13 @@ PIECE_SQUARE_MAP = {
     [  2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 ],
     [  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 ]
   ]
+}
+
+PIECE_RULE_METHODS = {
+  "p": rules.legal_pawn_moves,
+  "r": rules.legal_rook_moves,
+  "k": rules.legal_king_moves,
+  "q": rules.legal_queen_moves,
+  "b": rules.legal_bishop_moves,
+  "n": rules.legal_knight_moves
 }

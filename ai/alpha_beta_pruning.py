@@ -106,7 +106,6 @@ def alpha_beta_pruning_native(board, color, depth):
   print("Calculating...")
   st = time.time()
   moves_list = board.get_moves(color)
-  moves_list = board.filter_moves_on_check(color, moves_list)
 
   if len(moves_list) == 0 or depth == 0:
     return None
@@ -133,10 +132,9 @@ def alpha_beta_pruning_native(board, color, depth):
 
 def alpha_beta_min(board, color, alpha, beta, depth):
   if depth == 0:
-    return evaluate_board(board)
+    return -1 * evaluate_board(board)
 
   moves_list = board.get_moves(color)
-  moves_list = board.filter_moves_on_check(color, moves_list)
 
   score = float('inf')
   for move in moves_list:
@@ -157,7 +155,6 @@ def alpha_beta_max(board, color, alpha, beta, depth):
     return evaluate_board(board)
 
   moves_list = board.get_moves(color)
-  moves_list = board.filter_moves_on_check(color, moves_list)
 
   score = float('-inf')
   for move in moves_list:

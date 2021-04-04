@@ -1,4 +1,3 @@
-import re
 import sys
 
 import pygame
@@ -21,7 +20,11 @@ pygame.init()
 screen = pygame.display.set_mode((SIZE, SIZE))
 
 
-def draw_chessboard(board, moves = None):
+def draw_chessboard(board):
+  """
+  Draws the board with the current `board`'s piece positions
+  """
+
   screen.fill(COLOR_WHITE)
 
   start_x, start_y = 0, 0
@@ -30,9 +33,11 @@ def draw_chessboard(board, moves = None):
       start_x = 0 if idx % 2 != 0 else SIZE // 8
     else:
       start_x = SIZE // 8 if idx % 2 != 0 else 0
+
     for __ in range(8):
       pygame.draw.rect(screen, COLOR_GRAY, ((start_x, start_y), (SIZE // 8, SIZE // 8)))
       start_x += 2 * SIZE // 8
+
     start_y += SIZE // 8
 
   for piece in board.pieces:
@@ -40,37 +45,69 @@ def draw_chessboard(board, moves = None):
     img = pygame.image.load(f'{IMAGE_DIR}{piece.color}_{piece.type}.png')
     screen.blit(img, (x * SIZE // 8 + SIZE // 80, y * SIZE // 8 + SIZE // 80))
 
-  # if any piece is selected and has some legal moves then display blue squares on corresponding
-  # valid move block
-  if moves is not None:
-    for move in moves:
-      pygame.draw.rect(
-        screen,
-        COLOR_BLUE,
-        (get_chess_square_reverse(SIZE, move[1], move[0]), (SIZE // 8, SIZE // 8))
-      )
+  pygame.display.update()
 
-      if board.user_color != WHITE:
-        color = COLOR_WHITE if (move[1] + move[0]) % 2 != 0 else COLOR_GRAY
-      else:
-        color = COLOR_GRAY if (move[1] + move[0]) % 2 != 0 else COLOR_WHITE
 
-      pygame.draw.rect(
-        screen,
-        color,
-        (get_chess_square_border(SIZE, move[1], move[0]), (SIZE // 8 - 4, SIZE // 8 - 4))
-      )
+def draw_move_borders(board, moves):
+  """
+  Draws border on square blocks for every move in `moves`
+  """
 
-      for piece in board.pieces:
-        y, x = piece.position
-        if piece.position == move:
-          img = pygame.image.load(f'{IMAGE_DIR}{piece.color}_{piece.type}.png')
-          screen.blit(img, (x * SIZE // 8 + SIZE // 80, y * SIZE // 8 + SIZE // 80))
+  draw_chessboard(board)
+
+  for move in moves:
+    pygame.draw.rect(
+      screen,
+      COLOR_BLUE,
+      (get_chess_square_reverse(SIZE, move[1], move[0]), (SIZE // 8, SIZE // 8))
+    )
+
+    if board.user_color != WHITE:
+      color = COLOR_WHITE if (move[1] + move[0]) % 2 != 0 else COLOR_GRAY
+    else:
+      color = COLOR_GRAY if (move[1] + move[0]) % 2 != 0 else COLOR_WHITE
+
+    pygame.draw.rect(
+      screen,
+      color,
+      (get_chess_square_border(SIZE, move[1], move[0]), (SIZE // 8 - 4, SIZE // 8 - 4))
+    )
+
+    for piece in board.pieces:
+      y, x = piece.position
+      if piece.position == move:
+        img = pygame.image.load(f'{IMAGE_DIR}{piece.color}_{piece.type}.png')
+        screen.blit(img, (x * SIZE // 8 + SIZE // 80, y * SIZE // 8 + SIZE // 80))
 
   pygame.display.update()
 
 
+def draw_borders_if_clicked_on_piece(board, x, y):
+  """
+  Draws borders for moves if clicked on a piece, returning piece clicked on, its moves and its old
+  position
+  """
+
+  _x, _y = get_chess_square(SIZE, x, y)
+
+  piece_clicked = None
+  moves = []
+  for piece in board.pieces:
+    if piece.position == [_y, _x]:
+      moves = [move['new_position'] for move in piece.get_moves(board)]
+      piece_clicked = piece.type
+      piece_moves = moves
+
+  if moves:
+    draw_move_borders(board, moves)
+
+  return (_x, _y), piece_clicked, moves
+
+
 def looping_cpu_vs_human():
+  """
+  Player v/s CPU mode
+  """
   old_x = 0
   old_y = 0
   new_x = 0
@@ -99,25 +136,13 @@ def looping_cpu_vs_human():
       if not game_over:
         if event.type == pygame.MOUSEBUTTONDOWN:
           x, y = pygame.mouse.get_pos()
-          _x, _y = get_chess_square(SIZE, x, y)
-          moves = []
+          old_pos, piece_clicked, piece_moves = draw_borders_if_clicked_on_piece(board, x, y)
+          old_x, old_y = old_pos
 
-          clicked_on_piece = False
-          for piece in board.pieces:
-            if piece.position == [_y, _x]:
-              moves = board.filter_moves_on_check(board.user_color, piece.get_moves(board))
-              moves = [move['new_position'] for move in moves]
-              piece_clicked = piece.type
-              piece_moves = moves
-              clicked_on_piece = True
-
-          if clicked_on_piece:
-            old_x, old_y = _x, _y
-
-          draw_chessboard(board, moves=moves)
         if event.type == pygame.MOUSEBUTTONUP:
           x, y = pygame.mouse.get_pos()
           new_x, new_y = get_chess_square(SIZE, x, y)
+
           if (new_x != old_x or new_y != old_y) and [new_y, new_x] in piece_moves:
             move = {
               "old_position": [old_y, old_x],
@@ -126,23 +151,31 @@ def looping_cpu_vs_human():
               "color": board.side_to_move
             }
             is_over = board.play_move(move=move)
+
             draw_chessboard(board)
+
             if is_over:
               # TODO: display message
               print(is_over)
               game_over = True
               break
-            elif board.user_color != board.side_to_move:
+            else:
               is_over = board.play_move()
+
               draw_chessboard(board)
+
               if is_over:
-                # display message
+                # TODO: display message
                 print(is_over)
                 game_over = True
                 break
 
 
 def looping_cpu_vs_cpu():
+  """
+  CPU v/s CPU mode
+  """
+
   board = Board()
   draw_chessboard(board)
 
@@ -162,6 +195,10 @@ def looping_cpu_vs_cpu():
 
 
 def looping_human_vs_human():
+  """
+  Human v/s Human mode
+  """
+
   old_x = 0
   old_y = 0
   new_x = 0
@@ -182,22 +219,8 @@ def looping_human_vs_human():
       if not game_over:
         if event.type == pygame.MOUSEBUTTONDOWN:
           x, y = pygame.mouse.get_pos()
-          _x, _y = get_chess_square(SIZE, x, y)
-          moves = []
+          piece_moves = draw_borders_if_clicked_on_piece(board, x, y)
 
-          clicked_on_piece = False
-          for piece in board.pieces:
-            if piece.position == [_y, _x]:
-              moves = board.filter_moves_on_check(board.user_color, piece.get_moves(board))
-              moves = [move['new_position'] for move in moves]
-              piece_clicked = piece.type
-              piece_moves = moves
-              clicked_on_piece = True
-
-          if clicked_on_piece:
-            old_x, old_y = _x, _y
-
-          draw_chessboard(board, moves=moves)
         if event.type == pygame.MOUSEBUTTONUP:
           x, y = pygame.mouse.get_pos()
           new_x, new_y = get_chess_square(SIZE, x, y)
@@ -208,7 +231,15 @@ def looping_human_vs_human():
               "piece": piece_clicked,
               "color": board.side_to_move
             }
+
             is_over = board.play_move(move=move)
+            if is_over:
+              # TODO: display message
+              print(is_over)
+              game_over = True
+              break
+
             board.user_color = OPPOSITE[board.user_color]
             board.flip()
+
             draw_chessboard(board)
